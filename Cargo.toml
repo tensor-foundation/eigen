@@ -1,0 +1,29 @@
+[package]
+name = "eigen"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+anyhow = "1.0.75"
+borsh = { version = "0.10" }
+chrono = "0.4.38"
+clap = { version = "4.5", features = ["derive"] }
+dirs = "5.0.1"
+hex = "0.4.3"
+indexmap = { version = "2.1.0", features = ["serde"] }
+serde = "1.0.193"
+serde_json = "1.0.108"
+serde_with = "3.4.0"
+serde_yaml = "0.9.27"
+sha2 = "0.10.8"
+solana-client = ">=1.16"
+solana-logger = ">=1.16"
+solana-program = ">=1.16"
+solana-sdk = ">=1.16"
+tensor-amm = { version = "0.3.1", features = ["serde"] }
+tensor-whitelist = { version = "0.1.0", features = ["serde"] }
+# tensor-amm = { path = "/Users/metafrost/Desktop/amm/clients/rust", features = [
+#     "serde",
+# ] }
+tensor-marketplace = { version = "0.3.0", features = ["serde"] }
