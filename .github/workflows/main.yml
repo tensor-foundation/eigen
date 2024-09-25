@@ -92,4 +92,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact_name }}
-          path: target/release/${{ runner.os == 'eigen' }}
+          path: target/release/eigen
