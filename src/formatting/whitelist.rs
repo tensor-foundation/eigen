@@ -1,87 +1,120 @@
+use console::Style;
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
+
+use crate::formatting::pad_label;
 
 use super::CustomFormat;
 
+const LABEL_LENGTH: usize = 20;
+
 impl CustomFormat for Whitelist {
     fn custom_format(&self) -> String {
-        let voc_str = self
-            .voc
-            .map_or("None".to_string(), |pubkey| pubkey.to_string());
-        let fvc_str = self
-            .fvc
-            .map_or("None".to_string(), |pubkey| pubkey.to_string());
+        let color = Style::new().white();
 
         format!(
-            "Whitelist {{
-    discriminator: {:?},
-    version: {},
-    bump: {},
-    verified: {},
-    root_hash: {},
-    uuid: {},
-    name: {},
-    frozen: {},
-    voc: {},
-    fvc: {},
-    reserved: {}
-}}",
-            hex::encode(self.discriminator),
-            self.version,
-            self.bump,
-            self.verified,
-            hex::encode(self.root_hash),
-            String::from_utf8_lossy(&self.uuid),
-            String::from_utf8_lossy(&self.name),
-            self.frozen,
-            voc_str,
-            fvc_str,
-            if self.reserved.iter().all(|&x| x == 0) {
+            "{}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}",
+            color.apply_to("Whitelist-----------"),
+            pad_label("discriminator", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.discriminator)),
+            pad_label("version", LABEL_LENGTH),
+            color.apply_to(self.version),
+            pad_label("bump", LABEL_LENGTH),
+            color.apply_to(self.bump),
+            pad_label("verified", LABEL_LENGTH),
+            color.apply_to(self.verified),
+            pad_label("root_hash", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.root_hash)),
+            pad_label("uuid", LABEL_LENGTH),
+            color.apply_to(String::from_utf8_lossy(&self.uuid)),
+            pad_label("name", LABEL_LENGTH),
+            color.apply_to(String::from_utf8_lossy(&self.name)),
+            pad_label("frozen", LABEL_LENGTH),
+            color.apply_to(self.frozen),
+            pad_label("voc", LABEL_LENGTH),
+            color.apply_to(
+                self.voc
+                    .map_or("None".to_string(), |pubkey| pubkey.to_string())
+            ),
+            pad_label("fvc", LABEL_LENGTH),
+            color.apply_to(
+                self.fvc
+                    .map_or("None".to_string(), |pubkey| pubkey.to_string())
+            ),
+            pad_label("reserved", LABEL_LENGTH),
+            color.apply_to(if self.reserved.iter().all(|&x| x == 0) {
                 "[all zeros]".to_string()
             } else {
                 format!("{:?}", &self.reserved[..])
-            }
+            })
         )
     }
 }
 
 impl CustomFormat for WhitelistV2 {
     fn custom_format(&self) -> String {
+        let color = Style::new().white();
+
         format!(
-            "WhitelistV2 {{
-    discriminator: {:?},
-    version: {},
-    bump: {},
-    uuid: {},
-    state: {:?},
-    update_authority: {},
-    namespace: {},
-    freeze_authority: {},
-    conditions: {:?}
-}}",
-            hex::encode(self.discriminator),
-            self.version,
-            self.bump,
-            hex::encode(self.uuid),
-            self.state,
-            self.update_authority,
-            self.namespace,
-            self.freeze_authority,
-            self.conditions
+            "{}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}",
+            color.apply_to("WhitelistV2---------"),
+            pad_label("discriminator", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.discriminator)),
+            pad_label("version", LABEL_LENGTH),
+            color.apply_to(self.version),
+            pad_label("bump", LABEL_LENGTH),
+            color.apply_to(self.bump),
+            pad_label("uuid", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.uuid)),
+            pad_label("state", LABEL_LENGTH),
+            color.apply_to(format!("{:?}", self.state)),
+            pad_label("update_authority", LABEL_LENGTH),
+            color.apply_to(self.update_authority),
+            pad_label("namespace", LABEL_LENGTH),
+            color.apply_to(self.namespace),
+            pad_label("freeze_authority", LABEL_LENGTH),
+            color.apply_to(self.freeze_authority),
+            pad_label("conditions", LABEL_LENGTH),
+            color.apply_to(format!("{:?}", self.conditions))
         )
     }
 }
 
 impl CustomFormat for MintProof {
     fn custom_format(&self) -> String {
+        let color = Style::new().white();
+
         format!(
-            "MintProof {{
-    discriminator: {:?},
-    proof_len: {},
-    proof: {}
-}}",
-            hex::encode(self.discriminator),
-            self.proof_len,
-            if self.proof_len == 0 {
+            "{}
+{}: {}
+{}: {}
+{}: {}",
+            color.apply_to("MintProof----------------"),
+            pad_label("discriminator", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.discriminator)),
+            pad_label("proof_len", LABEL_LENGTH),
+            color.apply_to(self.proof_len),
+            pad_label("proof", LABEL_LENGTH),
+            color.apply_to(if self.proof_len == 0 {
                 "[empty]".to_string()
             } else {
                 format!(
@@ -92,24 +125,29 @@ impl CustomFormat for MintProof {
                         .collect::<Vec<_>>()
                         .join(", ")
                 )
-            }
+            })
         )
     }
 }
 
 impl CustomFormat for MintProofV2 {
     fn custom_format(&self) -> String {
+        let color = Style::new().white();
+
         format!(
-            "MintProofV2 {{
-    discriminator: {:?},
-    proof_len: {},
-    proof: {},
-    creation_slot: {},
-    payer: {}
-}}",
-            hex::encode(self.discriminator),
-            self.proof_len,
-            if self.proof_len == 0 {
+            "{}
+{}: {}
+{}: {}
+{}: {}
+{}: {}
+{}: {}",
+            color.apply_to("MintProofV2--------------"),
+            pad_label("discriminator", LABEL_LENGTH),
+            color.apply_to(hex::encode(self.discriminator)),
+            pad_label("proof_len", LABEL_LENGTH),
+            color.apply_to(self.proof_len),
+            pad_label("proof", LABEL_LENGTH),
+            color.apply_to(if self.proof_len == 0 {
                 "[empty]".to_string()
             } else {
                 format!(
@@ -120,9 +158,11 @@ impl CustomFormat for MintProofV2 {
                         .collect::<Vec<_>>()
                         .join(", ")
                 )
-            },
-            self.creation_slot,
-            self.payer
+            }),
+            pad_label("creation_slot", LABEL_LENGTH),
+            color.apply_to(self.creation_slot),
+            pad_label("payer", LABEL_LENGTH),
+            color.apply_to(self.payer)
         )
     }
 }

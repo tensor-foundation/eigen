@@ -18,6 +18,9 @@ pub fn handle_decode(args: DecodeArgs) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let data = config.client.get_account_data(&args.address)?;
+    if data.len() < 8 {
+        return Err(anyhow!("Not a Tensor program account"));
+    }
     let discriminator = &data[0..8];
 
     match discriminator {

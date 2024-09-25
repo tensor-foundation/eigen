@@ -1295,12 +1295,13 @@ dependencies = [
 
 [[package]]
 name = "eigen"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
  "chrono",
  "clap 4.5.17",
+ "console",
  "dirs",
  "hex",
  "indexmap 2.5.0",
@@ -4520,8 +4521,7 @@ dependencies = [
 [[package]]
 name = "tensor-amm"
 version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f7e3f86b63bcd6ec283569189979ff9adc8a76ac7238ef9b125ac46b864a821"
+source = "git+https://github.com/tensor-foundation/amm.git?branch=fix/idl-types#359ff6514481b91e368ed7ad7d2014cc3175a965"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
@@ -4535,9 +4535,8 @@ dependencies = [
 
 [[package]]
 name = "tensor-marketplace"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a9d755ae4952355c8b4a55a572a1788c48254328882ad95b3771175f08cd0a2"
+version = "0.4.0"
+source = "git+https://github.com/tensor-foundation/marketplace.git?branch=fix/idl-types#051c6ed8aa9367bc4af5c0f576b9fa9776771f1a"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
