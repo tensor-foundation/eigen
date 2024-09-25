@@ -4521,6 +4521,7 @@ dependencies = [
 [[package]]
 name = "tensor-amm"
 version = "0.3.2"
+source = "git+https://github.com/tensor-foundation/amm.git?branch=fix/idl-types#359ff6514481b91e368ed7ad7d2014cc3175a965"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
