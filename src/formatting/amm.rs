@@ -1,9 +1,10 @@
-use chrono::DateTime;
 use console::Style;
 use tensor_amm::{
     accounts::{NftDepositReceipt, Pool},
     types::{PoolConfig, PoolStats},
 };
+
+use crate::formatting::{format_timestamp, pad_label};
 
 use super::CustomFormat;
 
@@ -12,19 +13,9 @@ const POOL_SUB_LABEL_LENGTH: usize = POOL_LABEL_LENGTH - 2;
 const RECEIPT_LABEL_LENGTH: usize = 18;
 const LINE_BREAK: &str = "-------------------------";
 
-fn pad_label(label: &str, max_length: usize) -> String {
-    format!("{:<width$}", label, width = max_length)
-}
-
 impl CustomFormat for Pool {
     fn custom_format(&self) -> String {
         let blue = Style::new().blue();
-
-        fn format_timestamp(timestamp: i64) -> String {
-            DateTime::from_timestamp(timestamp, 0)
-                .unwrap_or_default()
-                .to_rfc3339()
-        }
 
         format!(
             "{}
