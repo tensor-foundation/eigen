@@ -1301,6 +1301,7 @@ dependencies = [
  "borsh 0.10.3",
  "chrono",
  "clap 4.5.17",
+ "console",
  "dirs",
  "hex",
  "indexmap 2.5.0",
@@ -4520,8 +4521,6 @@ dependencies = [
 [[package]]
 name = "tensor-amm"
 version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f7e3f86b63bcd6ec283569189979ff9adc8a76ac7238ef9b125ac46b864a821"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
