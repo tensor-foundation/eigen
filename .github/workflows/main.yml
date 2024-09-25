@@ -67,14 +67,13 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: linux
-            asset_name: linux-x86_64
+            artifact_name: eigen-ubuntu-latest
           - os: windows-latest
-            artifact_name: windows
-            asset_name: windows-x86_64
-          - os: macOS-latest
-            artifact_name: macos
-            asset_name: macos-x86_64
+            artifact_name: eigen-windows-latest
+          - os: macos-latest
+            artifact_name: eigen-macos-intel-latest
+          - os: macos-latest
+            artifact_name: eigen-macos-arm-latest
 
     steps:
       - uses: actions/checkout@v3

@@ -1295,7 +1295,7 @@ dependencies = [
 
 [[package]]
 name = "eigen"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
@@ -1312,7 +1312,7 @@ dependencies = [
  "sha2 0.10.8",
  "solana-client",
  "solana-logger",
- "solana-program 2.0.9",
+ "solana-program 1.17.14",
  "solana-sdk",
  "tensor-amm",
  "tensor-marketplace",
