@@ -4520,8 +4520,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-amm"
-version = "0.3.2"
-source = "git+https://github.com/tensor-foundation/amm.git?branch=fix/idl-types#359ff6514481b91e368ed7ad7d2014cc3175a965"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1265c81d344fdbbdf472fab029d8ebbb7e982ed55617e7085576151d4ca7694"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
@@ -4536,7 +4537,8 @@ dependencies = [
 [[package]]
 name = "tensor-marketplace"
 version = "0.4.0"
-source = "git+https://github.com/tensor-foundation/marketplace.git?branch=fix/idl-types#051c6ed8aa9367bc4af5c0f576b9fa9776771f1a"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1251de6d39cf67f998a9f68aef48352f33015935be4508b8ae7baef11e7e836e"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
