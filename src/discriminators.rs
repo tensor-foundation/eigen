@@ -3,6 +3,7 @@ use borsh::BorshDeserialize;
 use sha2::{Digest, Sha256};
 use tensor_amm::accounts::{NftDepositReceipt, Pool};
 use tensor_marketplace::accounts::{BidState, ListState};
+use tensor_price_lock::accounts::OrderState;
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
 pub trait Discriminator {
@@ -44,3 +45,5 @@ impl Discriminator for MintProof {}
 impl Discriminator for MintProofV2 {}
 impl Discriminator for BidState {}
 impl Discriminator for ListState {}
+
+impl Discriminator for OrderState {}

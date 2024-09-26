@@ -4,6 +4,8 @@ use chrono::DateTime;
 
 pub mod amm;
 pub mod marketplace;
+pub mod price_lock;
+pub mod wallet;
 pub mod whitelist;
 
 pub trait CustomFormat {
