@@ -27,4 +27,16 @@ pub enum Commands {
         address: Pubkey,
         output_dir: Option<PathBuf>,
     },
+    #[clap(subcommand)]
+    Whitelist(WhitelistSubcommands),
+}
+
+#[derive(Clone, Subcommand)]
+pub enum WhitelistSubcommands {
+    Compare {
+        list: Option<PathBuf>,
+        /// Verbose output
+        #[arg(short, long)]
+        verbose: bool,
+    },
 }

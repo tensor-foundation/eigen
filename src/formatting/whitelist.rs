@@ -1,7 +1,8 @@
 use console::Style;
+
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
-use crate::formatting::pad_label;
+use crate::{commands::ComparisonResult, formatting::pad_label};
 
 use super::CustomFormat;
 
@@ -9,7 +10,8 @@ const LABEL_LENGTH: usize = 20;
 
 impl CustomFormat for Whitelist {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
@@ -63,7 +65,8 @@ impl CustomFormat for Whitelist {
 
 impl CustomFormat for WhitelistV2 {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
@@ -101,7 +104,8 @@ impl CustomFormat for WhitelistV2 {
 
 impl CustomFormat for MintProof {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
@@ -132,7 +136,8 @@ impl CustomFormat for MintProof {
 
 impl CustomFormat for MintProofV2 {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
@@ -163,6 +168,33 @@ impl CustomFormat for MintProofV2 {
             color.apply_to(self.creation_slot),
             pad_label("payer", LABEL_LENGTH),
             color.apply_to(self.payer)
+        )
+    }
+}
+
+impl CustomFormat for ComparisonResult {
+    fn custom_format(&self) -> String {
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
+        let check = "✅";
+        let cross = "X";
+
+        format!(
+            "{}
+{}: {}
+{}: {}
+{}: {}",
+            color.apply_to("Whitelist Comparison----"),
+            pad_label("Whitelist V1", LABEL_LENGTH),
+            color.apply_to(self.whitelist_v1),
+            pad_label("Whitelist V2", LABEL_LENGTH),
+            color.apply_to(self.whitelist_v2),
+            pad_label("Whitelists match", LABEL_LENGTH),
+            color.apply_to(if self.mismatch.is_none() {
+                check
+            } else {
+                cross
+            }),
         )
     }
 }
