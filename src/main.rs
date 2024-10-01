@@ -2,8 +2,10 @@ use anyhow::Result;
 use clap::Parser;
 
 use eigen::{
-    args::{Args, Commands},
-    commands::{handle_decode, handle_download, DecodeArgs, DownloadArgs},
+    args::{Args, Commands, WhitelistSubcommands},
+    commands::{
+        handle_compare, handle_decode, handle_download, CompareArgs, DecodeArgs, DownloadArgs,
+    },
 };
 
 fn main() -> Result<()> {
@@ -29,5 +31,13 @@ fn main() -> Result<()> {
             address,
             output_dir,
         }),
+        Commands::Whitelist(subcommand) => match subcommand {
+            WhitelistSubcommands::Compare { list, verbose } => handle_compare(CompareArgs {
+                keypair_path,
+                rpc_url,
+                list,
+                verbose,
+            }),
+        },
     }
 }

@@ -9,7 +9,8 @@ const LABEL_LENGTH: usize = 15;
 
 impl CustomFormat for Account {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}

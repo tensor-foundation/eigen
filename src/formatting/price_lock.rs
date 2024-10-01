@@ -9,7 +9,8 @@ const LABEL_LENGTH: usize = 25;
 
 impl CustomFormat for OrderState {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
@@ -128,7 +129,8 @@ impl CustomFormat for OrderState {
 
 impl CustomFormat for OrderNftReceipt {
     fn custom_format(&self) -> String {
-        let color = Style::new().white();
+        // Use the default text color but set this up for future use.
+        let color = Style::new();
 
         format!(
             "{}
