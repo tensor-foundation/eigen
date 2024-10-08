@@ -28,7 +28,16 @@ pub enum Commands {
         output_dir: Option<PathBuf>,
     },
     #[clap(subcommand)]
+    Fees(FeesSubcommands),
+    #[clap(subcommand)]
     Whitelist(WhitelistSubcommands),
+}
+
+#[derive(Clone, Subcommand)]
+pub enum FeesSubcommands {
+    Shards,
+    Fund,
+    Balances,
 }
 
 #[derive(Clone, Subcommand)]

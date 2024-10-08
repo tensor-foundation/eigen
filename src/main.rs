@@ -2,9 +2,10 @@ use anyhow::Result;
 use clap::Parser;
 
 use eigen::{
-    args::{Args, Commands, WhitelistSubcommands},
+    args::{Args, Commands, FeesSubcommands, WhitelistSubcommands},
     commands::{
-        handle_compare, handle_decode, handle_download, CompareArgs, DecodeArgs, DownloadArgs,
+        fund_shards, generate_fee_shards, get_shard_balances, handle_compare, handle_decode,
+        handle_download, CompareArgs, DecodeArgs, DownloadArgs, FeeArgs,
     },
 };
 
@@ -31,6 +32,17 @@ fn main() -> Result<()> {
             address,
             output_dir,
         }),
+        Commands::Fees(subcommand) => match subcommand {
+            FeesSubcommands::Shards => generate_fee_shards(),
+            FeesSubcommands::Fund => fund_shards(FeeArgs {
+                keypair_path,
+                rpc_url,
+            }),
+            FeesSubcommands::Balances => get_shard_balances(FeeArgs {
+                keypair_path,
+                rpc_url,
+            }),
+        },
         Commands::Whitelist(subcommand) => match subcommand {
             WhitelistSubcommands::Compare { list, verbose } => handle_compare(CompareArgs {
                 keypair_path,
