@@ -1,3 +1,5 @@
+use crate::FEE_SHARDS;
+
 use super::*;
 
 use std::{fs::File, str::FromStr};
@@ -16,7 +18,7 @@ pub struct FeeArgs {
 pub fn generate_fee_shards() -> Result<()> {
     let mut shards = vec![];
 
-    for i in 0..255 {
+    for i in 0..=255 {
         let shard: &[u8] = &[i];
         shards.push(
             Pubkey::find_program_address(&[b"fee_shard", shard], &TFEE_PROGRAM_ID)
@@ -36,12 +38,8 @@ pub fn fund_shards(args: FeeArgs) -> Result<()> {
 
     let rent_exempt_lamports = config.client.get_minimum_balance_for_rent_exemption(0)?;
 
-    // Read fee shards from file
-    let file = File::open("fee_shards.json")?;
-    let shards: Vec<String> = serde_json::from_reader(file)?;
-
-    // Convert shards to Pubkeys
-    let shard_pubkeys: Vec<Pubkey> = shards
+    // Convert FEE_SHARDS to Pubkeys
+    let shard_pubkeys: Vec<Pubkey> = FEE_SHARDS
         .iter()
         .filter_map(|s| Pubkey::from_str(s).ok())
         .collect();
@@ -57,6 +55,11 @@ pub fn fund_shards(args: FeeArgs) -> Result<()> {
                 rent_exempt_lamports - balance,
             ));
         }
+    }
+
+    if instructions.is_empty() {
+        println!("All shards are already funded.");
+        return Ok(());
     }
 
     // Pack instructions into transactions (15 instructions per transaction)
@@ -79,24 +82,34 @@ pub fn fund_shards(args: FeeArgs) -> Result<()> {
 pub fn get_shard_balances(args: FeeArgs) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
-    let file = File::open("fee_shards.json")?;
-    let shards: Vec<String> = serde_json::from_reader(file)?;
-
-    let shard_pubkeys: Vec<Pubkey> = shards
+    let shard_pubkeys: Vec<Pubkey> = FEE_SHARDS
         .iter()
         .filter_map(|s| Pubkey::from_str(s).ok())
         .collect();
 
     let rent_exempt_lamports = config.client.get_minimum_balance_for_rent_exemption(0)?;
 
-    for pubkey in shard_pubkeys {
-        let balance = config.client.get_balance(&pubkey)?;
+    let mut fully_funded_count = 0;
+
+    for pubkey in &shard_pubkeys {
+        let balance = config.client.get_balance(pubkey)?;
         let status = if balance == rent_exempt_lamports {
+            fully_funded_count += 1;
             "✓"
         } else {
             "✗"
         };
         println!("{} {} {}", pubkey, balance, status);
+    }
+
+    if fully_funded_count == shard_pubkeys.len() {
+        println!("All shards fully funded!");
+    } else {
+        println!(
+            "{}/{} shards fully funded.",
+            fully_funded_count,
+            shard_pubkeys.len()
+        );
     }
 
     Ok(())
