@@ -46,13 +46,18 @@ pub fn fund_shards(args: FeeArgs) -> Result<()> {
         .filter_map(|s| Pubkey::from_str(s).ok())
         .collect();
 
-    // Create transfer instructions
-    let instructions: Vec<Instruction> = shard_pubkeys
-        .iter()
-        .map(|pubkey| {
-            system_instruction::transfer(&config.keypair.pubkey(), pubkey, rent_exempt_lamports)
-        })
-        .collect();
+    // Check balances and create transfer instructions only for underfunded shards
+    let mut instructions: Vec<Instruction> = Vec::new();
+    for pubkey in &shard_pubkeys {
+        let balance = config.client.get_balance(pubkey)?;
+        if balance < rent_exempt_lamports {
+            instructions.push(system_instruction::transfer(
+                &config.keypair.pubkey(),
+                pubkey,
+                rent_exempt_lamports - balance,
+            ));
+        }
+    }
 
     // Pack instructions into transactions (15 instructions per transaction)
     for chunk in instructions.chunks(15) {
