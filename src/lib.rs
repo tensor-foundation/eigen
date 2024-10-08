@@ -1,8 +1,15 @@
+use solana_sdk::{account::Account, pubkey::Pubkey};
+
 pub mod args;
 pub mod commands;
 pub mod discriminators;
 pub mod formatting;
 pub mod setup;
+
+pub struct Shard {
+    pub address: Pubkey,
+    pub account: Account,
+}
 
 pub const FEE_SHARDS: [&str; 256] = [
     "Fy3VHj5scaXLuFHB44Fp6oyM79vzTEZjFJdfpi6qUCLB",
