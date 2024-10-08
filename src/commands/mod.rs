@@ -1,13 +1,15 @@
 mod decode;
-pub use decode::*;
-
 mod download;
-pub use download::*;
-
+mod fees;
 mod whitelist;
+
+pub use decode::*;
+pub use download::*;
+pub use fees::*;
 pub use whitelist::*;
 
 pub use crate::{discriminators::Discriminator, setup::CliConfig};
 
-pub use anyhow::Result;
-pub use std::path::PathBuf;
+use anyhow::{anyhow, Result};
+use solana_sdk::{account::Account, pubkey::Pubkey};
+use std::path::PathBuf;

@@ -4336,9 +4336,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-amm"
-version = "0.4.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1265c81d344fdbbdf472fab029d8ebbb7e982ed55617e7085576151d4ca7694"
+checksum = "b6970f522446c8cf7873eb7e20277b5faa0c2526e4cfadfa55a0850879e9b6c1"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
@@ -4381,9 +4381,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-whitelist"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2290f99551f1f7e820b6deea037ca4ff835e3cd707ac85d93e8b9a0fa71e67d1"
+checksum = "872390378c404a6cb9a5466624623f76e384200bfc152794573e615a470fd62a"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",

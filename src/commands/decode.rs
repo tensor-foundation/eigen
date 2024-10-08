@@ -1,5 +1,3 @@
-use anyhow::{anyhow, Result};
-use solana_sdk::{account::Account, pubkey::Pubkey};
 use tensor_amm::accounts::{NftDepositReceipt, Pool};
 use tensor_marketplace::accounts::{BidState, ListState};
 use tensor_price_lock::accounts::OrderState;
