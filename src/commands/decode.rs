@@ -3,7 +3,7 @@ use tensor_marketplace::accounts::{BidState, ListState};
 use tensor_price_lock::accounts::OrderState;
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
-use crate::{discriminators::deserialize_account, formatting::CustomFormat};
+use crate::{discriminators::deserialize_account, formatting::CustomFormat, Shard, FEE_SHARDS};
 
 use super::*;
 
@@ -17,6 +17,18 @@ pub fn handle_decode(args: DecodeArgs) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let account = config.client.get_account(&args.address)?;
+
+    if is_fee_shard(&args.address.to_string()) {
+        println!(
+            "{}",
+            Shard {
+                address: args.address,
+                account
+            }
+            .custom_format()
+        );
+        return Ok(());
+    }
 
     if is_wallet_type(&account) {
         println!("{}", account.custom_format());
@@ -79,4 +91,8 @@ fn is_wallet_type(account: &Account) -> bool {
     account.owner == solana_sdk::system_program::id()
         && account.data.is_empty()
         && !account.executable
+}
+
+fn is_fee_shard(address: &str) -> bool {
+    FEE_SHARDS.contains(&address)
 }
