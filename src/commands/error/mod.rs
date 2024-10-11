@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use num_traits::FromPrimitive;
-use std::convert::TryFrom;
 use tensor_amm::errors::TensorAmmError;
 use tensor_marketplace::errors::TensorMarketplaceError;
 use tensor_whitelist::errors::TensorWhitelistError;
@@ -33,10 +32,10 @@ pub fn handle_error(args: ErrorArgs) -> Result<()> {
             code,
             &TensorMarketplaceError::from_i32(code as i32).unwrap(),
         ),
-        code if AnchorErrorCode::try_from(code).is_ok() => print_error(
+        code if AnchorErrorCode::from_u32(code).is_some() => print_error(
             "Anchor ErrorCode",
             code,
-            &AnchorErrorCode::try_from(code).unwrap(),
+            &AnchorErrorCode::from_u32(code).unwrap(),
         ),
         _ => println!("Unknown error code: {}", error_code),
     }

@@ -1276,6 +1276,7 @@ dependencies = [
  "dirs",
  "hex",
  "indexmap 2.5.0",
+ "num-derive 0.4.2",
  "num-traits",
  "serde",
  "serde_json",
@@ -4354,9 +4355,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-marketplace"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1251de6d39cf67f998a9f68aef48352f33015935be4508b8ae7baef11e7e836e"
+checksum = "27655635755b68ca405118e7672d1a62f7bf6bb56517b1e627f07011423fe221"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
