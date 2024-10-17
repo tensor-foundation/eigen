@@ -1276,6 +1276,8 @@ dependencies = [
  "dirs",
  "hex",
  "indexmap 2.5.0",
+ "num-derive 0.4.2",
+ "num-traits",
  "serde",
  "serde_json",
  "serde_with 3.9.0",
@@ -1290,6 +1292,7 @@ dependencies = [
  "tensor-marketplace",
  "tensor-price-lock",
  "tensor-whitelist",
+ "uuid",
 ]
 
 [[package]]
@@ -4336,9 +4339,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-amm"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6970f522446c8cf7873eb7e20277b5faa0c2526e4cfadfa55a0850879e9b6c1"
+checksum = "31e30e378a8880df7a3ac8847c7599f8c3142288c9b8704a1f74ad27fa2bd3f8"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
@@ -4352,9 +4355,9 @@ dependencies = [
 
 [[package]]
 name = "tensor-marketplace"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1251de6d39cf67f998a9f68aef48352f33015935be4508b8ae7baef11e7e836e"
+checksum = "27655635755b68ca405118e7672d1a62f7bf6bb56517b1e627f07011423fe221"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.3.3",
@@ -4803,6 +4806,16 @@ name = "utf8parse"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
+
+[[package]]
+name = "uuid"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81dfa00651efa65069b0b6b651f4aaa31ba9e3c3ce0137aaad053604ee7e0314"
+dependencies = [
+ "getrandom 0.2.15",
+ "serde",
+]
 
 [[package]]
 name = "vec_map"

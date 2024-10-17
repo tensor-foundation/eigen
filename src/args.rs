@@ -27,6 +27,11 @@ pub enum Commands {
         address: Pubkey,
         output_dir: Option<PathBuf>,
     },
+    Error {
+        error_code: String,
+    },
+    #[clap(subcommand)]
+    Pool(PoolSubcommands),
     #[clap(subcommand)]
     Fees(FeesSubcommands),
     #[clap(subcommand)]
@@ -41,11 +46,19 @@ pub enum FeesSubcommands {
 }
 
 #[derive(Clone, Subcommand)]
+pub enum PoolSubcommands {
+    Create { whitelist: Pubkey },
+}
+
+#[derive(Clone, Subcommand)]
 pub enum WhitelistSubcommands {
     Compare {
         list: Option<PathBuf>,
         /// Verbose output
         #[arg(short, long)]
         verbose: bool,
+    },
+    Create {
+        namespace_path: Option<PathBuf>,
     },
 }
