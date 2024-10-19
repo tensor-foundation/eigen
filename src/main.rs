@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 
-use eigen::{
+use tensor_eigen::{
     args::{Args, Commands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands},
     commands::{
         create_pool, create_whitelist_v2, fund_shards, generate_fee_shards, get_shard_balances,

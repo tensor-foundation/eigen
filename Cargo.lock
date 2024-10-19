@@ -1265,37 +1265,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "eigen"
-version = "0.0.4"
-dependencies = [
- "anyhow",
- "borsh 0.10.3",
- "chrono",
- "clap 4.5.17",
- "console",
- "dirs",
- "hex",
- "indexmap 2.5.0",
- "num-derive 0.4.2",
- "num-traits",
- "serde",
- "serde_json",
- "serde_with 3.9.0",
- "serde_yaml",
- "sha2 0.10.8",
- "solana-account-decoder",
- "solana-client",
- "solana-logger",
- "solana-program",
- "solana-sdk",
- "tensor-amm",
- "tensor-marketplace",
- "tensor-price-lock",
- "tensor-whitelist",
- "uuid",
-]
-
-[[package]]
 name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4351,6 +4320,37 @@ dependencies = [
  "solana-program",
  "spl-math",
  "thiserror",
+]
+
+[[package]]
+name = "tensor-eigen"
+version = "0.0.4"
+dependencies = [
+ "anyhow",
+ "borsh 0.10.3",
+ "chrono",
+ "clap 4.5.17",
+ "console",
+ "dirs",
+ "hex",
+ "indexmap 2.5.0",
+ "num-derive 0.4.2",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "serde_with 3.9.0",
+ "serde_yaml",
+ "sha2 0.10.8",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-logger",
+ "solana-program",
+ "solana-sdk",
+ "tensor-amm",
+ "tensor-marketplace",
+ "tensor-price-lock",
+ "tensor-whitelist",
+ "uuid",
 ]
 
 [[package]]
