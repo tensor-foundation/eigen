@@ -2,10 +2,12 @@ use anyhow::Result;
 use clap::Parser;
 
 use tensor_eigen::{
-    args::{Args, Commands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands},
+    args::{
+        Args, Commands, EigenSubcommands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands,
+    },
     commands::{
         create_pool, create_whitelist_v2, fund_shards, generate_fee_shards, get_shard_balances,
-        handle_compare, handle_decode, handle_download, handle_error, CompareParams,
+        handle_compare, handle_decode, handle_download, handle_error, update_eigen, CompareParams,
         CreatePoolParams, CreateWhitelistV2Params, DecodeParams, DownloadParams, ErrorParams,
         FeeParams,
     },
@@ -29,6 +31,9 @@ fn main() -> Result<()> {
         Commands::Error(args) => handle_error(ErrorParams {
             error_code: args.error_code,
         }),
+        Commands::Eigen(subcommand) => match subcommand {
+            EigenSubcommands::Update => update_eigen(),
+        },
         Commands::Fees(subcommand) => match subcommand {
             FeesSubcommands::Shards => generate_fee_shards(),
             FeesSubcommands::Fund(args) => fund_shards(FeeParams {
