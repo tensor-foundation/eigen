@@ -9,15 +9,14 @@ use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2}
 
 use crate::{commands::Discriminator, discriminators::deserialize_account, setup::CliConfig};
 
-pub struct DownloadArgs {
-    pub keypair_path: Option<PathBuf>,
+pub struct DownloadParams {
     pub rpc_url: Option<String>,
     pub address: Pubkey,
     pub output_dir: Option<PathBuf>,
 }
 
-pub fn handle_download(args: DownloadArgs) -> Result<()> {
-    let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
+pub fn handle_download(args: DownloadParams) -> Result<()> {
+    let config = CliConfig::new(None, args.rpc_url)?;
 
     let data = config.client.get_account_data(&args.address)?;
     let discriminator = &data[0..8];

@@ -9,7 +9,7 @@ use tensor_whitelist::{
 };
 use uuid::Uuid;
 
-pub struct CreateWhitelistV2Args {
+pub struct CreateWhitelistV2Params {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
     pub namespace_path: Option<PathBuf>,
@@ -25,7 +25,7 @@ struct CreateWhitelistV2Config {
     conditions: Vec<Condition>,
 }
 
-pub fn create_whitelist_v2(args: CreateWhitelistV2Args) -> Result<()> {
+pub fn create_whitelist_v2(args: CreateWhitelistV2Params) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let payer = config.keypair.pubkey();

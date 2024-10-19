@@ -9,11 +9,11 @@ mod anchor_error;
 use anchor_error::AnchorErrorCode;
 
 #[derive(Debug)]
-pub struct ErrorArgs {
+pub struct ErrorParams {
     pub error_code: String,
 }
 
-pub fn handle_error(args: ErrorArgs) -> Result<()> {
+pub fn handle_error(args: ErrorParams) -> Result<()> {
     let error_code = parse_error_code(&args.error_code)?;
 
     match error_code {

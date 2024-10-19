@@ -5,13 +5,13 @@ use tensor_amm::{
     instructions::{CreatePool, CreatePoolInstructionArgs},
 };
 
-pub struct CreatePoolArgs {
+pub struct CreatePoolParams {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
     pub whitelist: Pubkey,
 }
 
-pub fn create_pool(args: CreatePoolArgs) -> Result<()> {
+pub fn create_pool(args: CreatePoolParams) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let payer = config.keypair.pubkey();

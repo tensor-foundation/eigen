@@ -7,14 +7,13 @@ use crate::{discriminators::deserialize_account, formatting::CustomFormat, Shard
 
 use super::*;
 
-pub struct DecodeArgs {
-    pub keypair_path: Option<PathBuf>,
+pub struct DecodeParams {
     pub rpc_url: Option<String>,
     pub address: Pubkey,
 }
 
-pub fn handle_decode(args: DecodeArgs) -> Result<()> {
-    let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
+pub fn handle_decode(args: DecodeParams) -> Result<()> {
+    let config = CliConfig::new(None, args.rpc_url)?;
 
     let account = config.client.get_account(&args.address)?;
 
