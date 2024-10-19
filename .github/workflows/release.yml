@@ -63,14 +63,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
         include:
           - os: ubuntu-latest
             artifact_name: eigen-linux-x86_64
-            binary_name: eigen
+            asset_name: eigen-linux-x86_64
           - os: macos-latest
             artifact_name: eigen-macos-arm64
-            binary_name: eigen
+            asset_name: eigen-macos-arm64
 
     steps:
       - uses: actions/checkout@v3
@@ -89,15 +88,18 @@ jobs:
       - name: Build
         run: cargo build --release
 
+      - name: Make binary executable
+        run: chmod +x target/release/eigen
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact_name }}
-          path: target/release/${{ matrix.binary_name }}
+          path: target/release/eigen
 
   release:
     name: Create Release
-    needs: [build]
+    needs: [build, fmt, clippy, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -111,7 +113,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            eigen-ubuntu-latest
-            eigen-macos-arm-latest
+            eigen-linux-x86_64
+            eigen-macos-arm64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
