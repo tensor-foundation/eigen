@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 
+mod eigen;
 mod fees;
 mod pool;
 mod whitelist;
 
+pub use eigen::*;
 pub use fees::*;
 pub use pool::*;
 pub use whitelist::*;
@@ -31,6 +33,9 @@ pub enum Commands {
 
     #[clap(subcommand)]
     Pool(PoolSubcommands),
+
+    #[clap(subcommand, name = "self")]
+    Eigen(EigenSubcommands),
 
     #[clap(subcommand)]
     Whitelist(WhitelistSubcommands),

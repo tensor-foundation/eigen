@@ -1,5 +1,6 @@
 mod decode;
 mod download;
+mod eigen;
 mod error;
 mod fees;
 mod pool;
@@ -7,6 +8,7 @@ mod whitelist;
 
 pub use decode::*;
 pub use download::*;
+pub use eigen::*;
 pub use error::*;
 pub use fees::*;
 pub use pool::*;
