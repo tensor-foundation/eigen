@@ -1,7 +1,11 @@
 [package]
 name = "tensor-eigen"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
+description = "Utility CLI for the Tensor Foundation Solana programs."
+repository = "https://github.com/tensor-foundation/eigen"
+license = "Apache-2.0"
+
 
 [[bin]]
 name = "eigen"
