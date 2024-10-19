@@ -28,14 +28,14 @@ const MAINNET_GENESIS_HASH: &str = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d
 
 const DEFAULT_ROOT_HASH: [u8; 32] = [0; 32];
 
-pub struct CompareArgs {
+pub struct CompareParams {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
     pub list: Option<PathBuf>,
     pub verbose: bool,
 }
 
-pub fn handle_compare(args: CompareArgs) -> Result<()> {
+pub fn handle_compare(args: CompareParams) -> Result<()> {
     let cli_config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let genesis_hash = cli_config.client.get_genesis_hash()?.to_string();

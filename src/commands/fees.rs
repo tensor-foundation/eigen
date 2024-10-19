@@ -10,7 +10,7 @@ use solana_sdk::{
 
 const TFEE_PROGRAM_ID: Pubkey = pubkey!("TFEEgwDP6nn1s8mMX2tTNPPz8j2VomkphLUmyxKm17A");
 
-pub struct FeeArgs {
+pub struct FeeParams {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
 }
@@ -33,7 +33,7 @@ pub fn generate_fee_shards() -> Result<()> {
     Ok(())
 }
 
-pub fn fund_shards(args: FeeArgs) -> Result<()> {
+pub fn fund_shards(args: FeeParams) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let rent_exempt_lamports = config.client.get_minimum_balance_for_rent_exemption(0)?;
@@ -79,7 +79,7 @@ pub fn fund_shards(args: FeeArgs) -> Result<()> {
     Ok(())
 }
 
-pub fn get_shard_balances(args: FeeArgs) -> Result<()> {
+pub fn get_shard_balances(args: FeeParams) -> Result<()> {
     let config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let shard_pubkeys: Vec<Pubkey> = FEE_SHARDS
