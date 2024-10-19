@@ -66,10 +66,10 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: eigen-ubuntu-latest
+            artifact_name: eigen-linux-x86_64
             binary_name: eigen
           - os: macos-latest
-            artifact_name: eigen-macos-arm-latest
+            artifact_name: eigen-macos-arm64
             binary_name: eigen
 
     steps:
