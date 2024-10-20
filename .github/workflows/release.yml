@@ -113,10 +113,16 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
-      - name: Rename and prepare binaries
+      - name: Prepare binaries
         run: |
-          mv eigen-linux-x86_64/eigen eigen-linux-x86_64
-          mv eigen-macos-arm64/eigen eigen-macos-arm64
+          mv eigen-linux-x86_64/eigen ./eigen-temp-linux
+          rm -rf eigen-linux-x86_64
+          mv eigen-temp-linux eigen-linux-x86_64
+
+          mv eigen-macos-arm64/eigen ./eigen-temp-macos
+          rm -rf eigen-macos-arm64
+          mv eigen-temp-macos eigen-macos-arm64
+
           chmod +x eigen-linux-x86_64 eigen-macos-arm64
 
       - name: Create Release
