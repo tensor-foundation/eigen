@@ -6,6 +6,9 @@ on:
       - "v*"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -102,7 +105,8 @@ jobs:
     name: Create Release
     needs: [build, fmt, clippy, test]
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -124,6 +128,9 @@ jobs:
           mv eigen-temp-macos eigen-macos-arm64
 
           chmod +x eigen-linux-x86_64 eigen-macos-arm64
+
+      - name: Display structure of prepared files
+        run: ls -R
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
