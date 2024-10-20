@@ -1,6 +1,7 @@
 use super::*;
 
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
 use solana_sdk::signature::{read_keypair_file, Keypair};
 use tensor_whitelist::{
     accounts::WhitelistV2,
@@ -12,9 +13,9 @@ use uuid::Uuid;
 pub struct CreateWhitelistV2Params {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
+    pub whitelist_config_path: PathBuf,
     pub namespace_path: Option<PathBuf>,
 }
-use serde_with::{serde_as, DisplayFromStr};
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,9 +39,7 @@ pub fn create_whitelist_v2(args: CreateWhitelistV2Params) -> Result<()> {
     };
 
     let create_whitelist_config: CreateWhitelistV2Config =
-        serde_json::from_reader(std::fs::File::open("whitelist_config.json")?)?;
-
-    println!("{:?}", create_whitelist_config);
+        serde_json::from_reader(std::fs::File::open(args.whitelist_config_path)?)?;
 
     let uuid = create_whitelist_config.uuid.unwrap_or_else(|| {
         let uuid1 = Uuid::new_v4();
