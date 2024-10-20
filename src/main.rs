@@ -7,9 +7,9 @@ use tensor_eigen::{
     },
     commands::{
         create_pool, create_whitelist_v2, fund_shards, generate_fee_shards, get_shard_balances,
-        handle_compare, handle_decode, handle_download, handle_error, update_eigen, CompareParams,
-        CreatePoolParams, CreateWhitelistV2Params, DecodeParams, DownloadParams, ErrorParams,
-        FeeParams,
+        handle_compare, handle_decode, handle_download, handle_error, update_eigen,
+        update_whitelist_v2, CompareParams, CreatePoolParams, CreateWhitelistV2Params,
+        DecodeParams, DownloadParams, ErrorParams, FeeParams, UpdateWhitelistV2Params,
     },
 };
 
@@ -63,6 +63,15 @@ fn main() -> Result<()> {
                 keypair_path: args.write_options.keypair_path,
                 rpc_url: args.write_options.rpc_url,
                 namespace_path: args.namespace_path,
+                whitelist_config_path: args.whitelist_config_path,
+            }),
+            WhitelistSubcommands::Update(args) => update_whitelist_v2(UpdateWhitelistV2Params {
+                keypair_path: args.write_options.keypair_path,
+                rpc_url: args.write_options.rpc_url,
+                whitelist_address: args.whitelist_address,
+                new_conditions_path: args.new_conditions_path,
+                new_update_authority_path: args.new_update_authority_path,
+                new_freeze_authority: args.new_freeze_authority,
             }),
         },
     }
