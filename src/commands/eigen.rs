@@ -48,7 +48,7 @@ fn detect_os_and_arch() -> Result<(&'static str, &'static str)> {
 }
 
 fn get_download_url(os: &str, arch: &str) -> Result<String> {
-    let base_url = "https://github.com/tensor-foundation/eigen/releases/download/latest";
+    let base_url = "https://github.com/tensor-foundation/eigen/releases/latest/download";
     let filename = format!("eigen-{}-{}", os, arch);
     Ok(format!("{}/{}", base_url, filename))
 }
