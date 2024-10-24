@@ -6,10 +6,11 @@ use tensor_eigen::{
         Args, Commands, EigenSubcommands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands,
     },
     commands::{
-        create_pool, create_whitelist_v2, fund_shards, generate_fee_shards, get_shard_balances,
-        handle_compare, handle_decode, handle_download, handle_error, update_eigen,
-        update_whitelist_v2, CompareParams, CreatePoolParams, CreateWhitelistV2Params,
-        DecodeParams, DownloadParams, ErrorParams, FeeParams, UpdateWhitelistV2Params,
+        create_pool, create_whitelist_v2, edit_pool, fund_shards, generate_fee_shards,
+        get_shard_balances, handle_compare, handle_decode, handle_download, handle_error,
+        update_eigen, update_whitelist_v2, CompareParams, CreatePoolParams,
+        CreateWhitelistV2Params, DecodeParams, DownloadParams, EditPoolParams, ErrorParams,
+        FeeParams, UpdateWhitelistV2Params,
     },
 };
 
@@ -50,6 +51,13 @@ fn main() -> Result<()> {
                 keypair_path: args.write_options.keypair_path,
                 rpc_url: args.write_options.rpc_url,
                 whitelist: args.whitelist,
+                pool_config_path: args.pool_config_path,
+            }),
+            PoolSubcommands::Edit(args) => edit_pool(EditPoolParams {
+                keypair_path: args.write_options.keypair_path,
+                rpc_url: args.write_options.rpc_url,
+                pool: args.pool,
+                edit_pool_config_path: args.edit_pool_config_path,
             }),
         },
         Commands::Whitelist(subcommand) => match subcommand {
