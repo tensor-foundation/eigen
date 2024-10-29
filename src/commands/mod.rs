@@ -17,7 +17,7 @@ pub use whitelist::*;
 pub use crate::{discriminators::Discriminator, setup::CliConfig, transaction};
 
 use anyhow::{anyhow, Result};
-use solana_sdk::{account::Account, pubkey::Pubkey, signer::Signer, transaction::Transaction};
+use solana_sdk::{account::Account, pubkey::Pubkey};
 use std::path::PathBuf;
 
 #[macro_export]

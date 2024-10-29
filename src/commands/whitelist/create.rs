@@ -1,10 +1,6 @@
 use super::*;
 
-use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
-use solana_sdk::signature::{read_keypair_file, Keypair};
 use tensor_whitelist::{
-    accounts::WhitelistV2,
     instructions::{CreateWhitelistV2, CreateWhitelistV2InstructionArgs},
     types::Condition,
 };

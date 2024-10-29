@@ -1,13 +1,11 @@
 use super::*;
 
-use tensor_amm::{
-    accounts::Pool,
-    instructions::{CreatePool, CreatePoolInstructionArgs},
-};
+use tensor_amm::instructions::{CreatePool, CreatePoolInstructionArgs};
 
 pub struct CreatePoolParams {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
+    pub pool_config_path: PathBuf,
     pub whitelist: Pubkey,
 }
 
@@ -18,7 +16,7 @@ pub fn create_pool(args: CreatePoolParams) -> Result<()> {
     let owner = config.keypair.pubkey();
 
     let create_pool_args: CreatePoolInstructionArgs =
-        serde_json::from_reader(std::fs::File::open("pool_config.json")?)?;
+        serde_json::from_reader(std::fs::File::open(args.pool_config_path)?)?;
 
     let pool = Pool::find_pda(&owner, create_pool_args.pool_id).0;
 
