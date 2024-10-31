@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use chrono::DateTime;
+use solana_sdk::{account::Account, pubkey::Pubkey};
 
 pub mod amm;
 pub mod marketplace;
@@ -27,4 +28,9 @@ pub fn format_timestamp(timestamp: i64) -> String {
     DateTime::from_timestamp(timestamp, 0)
         .unwrap_or_default()
         .to_rfc3339()
+}
+
+pub struct AccountEntry {
+    pub address: Pubkey,
+    pub account: Account,
 }

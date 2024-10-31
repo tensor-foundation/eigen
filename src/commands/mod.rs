@@ -16,9 +16,10 @@ pub use whitelist::*;
 
 pub use crate::{discriminators::Discriminator, setup::CliConfig, transaction};
 
+use std::path::PathBuf;
+
 use anyhow::{anyhow, Result};
 use solana_sdk::{account::Account, pubkey::Pubkey};
-use std::path::PathBuf;
 
 #[macro_export]
 macro_rules! transaction {
@@ -31,3 +32,12 @@ macro_rules! transaction {
         )
     };
 }
+
+pub const fn pubkey(base58str: &str) -> Pubkey {
+    Pubkey::new_from_array(five8_const::decode_32_const(base58str))
+}
+
+pub const TOKEN_PROGRAM_IDS: &[Pubkey] = &[
+    pubkey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+    pubkey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+];
