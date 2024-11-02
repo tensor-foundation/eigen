@@ -3,7 +3,11 @@ use tensor_marketplace::accounts::{BidState, ListState};
 use tensor_price_lock::accounts::OrderState;
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
-use crate::{discriminators::deserialize_account, formatting::CustomFormat, Shard, FEE_SHARDS};
+use crate::{
+    discriminators::deserialize_account,
+    formatting::{AccountEntry, CustomFormat},
+    Shard, FEE_SHARDS,
+};
 
 use super::*;
 
@@ -15,7 +19,25 @@ pub struct DecodeParams {
 pub fn handle_decode(args: DecodeParams) -> Result<()> {
     let config = CliConfig::new(None, args.rpc_url)?;
 
-    let account = config.client.get_account(&args.address)?;
+    // For `AccountNotFound` error, treat it as an unitialized system program owned wallet with 0 lamports
+    // the same way explorers do.
+    let account = match config.client.get_account(&args.address) {
+        Ok(account) => account,
+        Err(e) => {
+            // Check if error message contains "AccountNotFound"
+            if e.to_string().contains("AccountNotFound") {
+                Account {
+                    lamports: 0,
+                    data: vec![],
+                    owner: solana_sdk::system_program::ID,
+                    executable: false,
+                    rent_epoch: 0,
+                }
+            } else {
+                return Err(e.into());
+            }
+        }
+    };
 
     if is_fee_shard(&args.address.to_string()) {
         println!(
@@ -30,7 +52,11 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
     }
 
     if is_wallet_type(&account) {
-        println!("{}", account.custom_format());
+        let account_entry = AccountEntry {
+            address: args.address,
+            account,
+        };
+        println!("{}", account_entry.custom_format());
         return Ok(());
     }
 
@@ -79,8 +105,14 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
             println!("{}", order_state.custom_format());
         }
         _ => {
-            println!("Unrecognized discriminator");
-            println!("Account owned by program: {}", account.owner);
+            if TOKEN_PROGRAM_IDS.contains(&account.owner) {
+                println!("Token or mint account");
+                println!("Data length: {}", data.len());
+                println!("Lamports: {}", account.lamports);
+                println!("Account owned by program: {}", account.owner);
+            } else {
+                println!("Unrecognized discriminator");
+            }
         }
     }
     Ok(())
