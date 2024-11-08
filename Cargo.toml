@@ -35,6 +35,6 @@ solana-program = ">=1.16, <2.0"
 solana-sdk = ">=1.16, <2.0"
 tensor-amm = { version = "0.7.0", features = ["serde"] }
 tensor-marketplace = { version = "0.5.0", features = ["serde"] }
-tensor-price-lock = "0.2.0"
+tensor-price-lock = { version = "0.2.0", features = ["serde"] }
 tensor-whitelist = { version = "0.2.0", features = ["serde"] }
 uuid = { version = "1.10.0", features = ["v4", "serde"] }

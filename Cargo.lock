@@ -4394,6 +4394,8 @@ dependencies = [
  "kaigan",
  "num-derive 0.3.3",
  "num-traits",
+ "serde",
+ "serde_with 3.9.0",
  "solana-program",
  "thiserror",
 ]

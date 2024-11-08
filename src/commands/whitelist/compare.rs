@@ -8,7 +8,7 @@ use solana_client::{
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
 };
 use solana_program::{pubkey, pubkey::Pubkey};
-use solana_sdk::commitment_config::CommitmentConfig;
+use solana_sdk::{account::Account, commitment_config::CommitmentConfig};
 use tensor_whitelist::{
     accounts::{Whitelist, WhitelistV2},
     programs::TENSOR_WHITELIST_ID,
@@ -16,17 +16,13 @@ use tensor_whitelist::{
 };
 
 use crate::{
+    commands::{DEFAULT_ROOT_HASH, DEVNET_GENESIS_HASH, MAINNET_GENESIS_HASH},
     discriminators::{deserialize_account, Discriminator},
     formatting::CustomFormat,
     setup::CliConfig,
 };
 
 pub const WHITELIST_SIGNER_PUBKEY: Pubkey = pubkey!("Evfeo6yn3ASo3FWkGRKJNfvjF4wCKbuNEkNfYQMtoSBr");
-
-const DEVNET_GENESIS_HASH: &str = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
-const MAINNET_GENESIS_HASH: &str = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
-
-const DEFAULT_ROOT_HASH: [u8; 32] = [0; 32];
 
 pub struct CompareParams {
     pub keypair_path: Option<PathBuf>,
@@ -51,10 +47,18 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
     println!("cluster: {}", cluster);
 
     // Open the list file and decode into a vector of Pubkeys
-    let whitelists: Vec<Pubkey> = if let Some(list) = args.list {
+    let whitelists: Vec<Account> = if let Some(list) = args.list {
         let list: Vec<Pubkey> = serde_json::from_reader(File::open(&list)?)?;
-        list.into_iter()
+
+        let pubkeys: Vec<_> = list
+            .iter()
             .map(|p| Whitelist::find_pda(p.to_bytes()).0)
+            .collect();
+        cli_config
+            .client
+            .get_multiple_accounts(&pubkeys)?
+            .into_iter()
+            .flatten()
             .collect()
     } else {
         // GPA to find all whitelists v1s
@@ -79,7 +83,7 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
             .client
             .get_program_accounts_with_config(&TENSOR_WHITELIST_ID, config)?
             .into_iter()
-            .map(|(pubkey, _)| pubkey)
+            .map(|(_, account)| account)
             .collect()
     };
 
@@ -87,14 +91,11 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
 
     let mut v1_missing = vec![];
 
-    // Fetch v1 accounts.
-    let whitelist_accounts = cli_config.client.get_multiple_accounts(&whitelists)?;
-
     // Decode whitelist v1.
-    let decoded_whitelists: Vec<Option<Whitelist>> = whitelist_accounts
+    let decoded_whitelists: Vec<Option<Whitelist>> = whitelists
         .into_iter()
-        .map(|maybe_account| {
-            maybe_account.and_then(|a| deserialize_account::<Whitelist>(&a.data).ok())
+        .map(|account| {
+            Some(account.data).and_then(|data| deserialize_account::<Whitelist>(&data).ok())
         })
         .collect();
 

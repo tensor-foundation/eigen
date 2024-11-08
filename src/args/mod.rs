@@ -3,11 +3,13 @@ use std::path::PathBuf;
 mod eigen;
 mod fees;
 mod pool;
+mod price_lock;
 mod whitelist;
 
 pub use eigen::*;
 pub use fees::*;
 pub use pool::*;
+pub use price_lock::*;
 pub use whitelist::*;
 
 use clap::{Args as ClapArgs, Parser, Subcommand};
@@ -33,6 +35,9 @@ pub enum Commands {
 
     #[clap(subcommand)]
     Pool(PoolSubcommands),
+
+    #[clap(subcommand)]
+    PriceLock(PriceLockSubcommands),
 
     #[clap(subcommand, name = "self")]
     Eigen(EigenSubcommands),
@@ -68,6 +73,10 @@ pub struct DecodeArgs {
 
     /// Address to decode.
     pub address: Pubkey,
+
+    /// Print raw bytes.
+    #[arg(long)]
+    pub raw: bool,
 }
 
 #[derive(ClapArgs)]

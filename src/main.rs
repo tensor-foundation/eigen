@@ -3,14 +3,16 @@ use clap::Parser;
 
 use tensor_eigen::{
     args::{
-        Args, Commands, EigenSubcommands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands,
+        Args, Commands, EigenSubcommands, FeesSubcommands, PoolSubcommands, PriceLockSubcommands,
+        WhitelistSubcommands,
     },
     commands::{
         create_pool, create_whitelist_v2, edit_pool, fund_shards, generate_fee_shards,
-        get_shard_balances, handle_compare, handle_decode, handle_download, handle_error,
-        update_eigen, update_whitelist_v2, CompareParams, CreatePoolParams,
-        CreateWhitelistV2Params, DecodeParams, DownloadParams, EditPoolParams, ErrorParams,
-        FeeParams, UpdateWhitelistV2Params,
+        get_shard_balances, handle_close_price_lock, handle_compare, handle_decode,
+        handle_download, handle_error, handle_find_price_lock, update_eigen, update_whitelist_v2,
+        ClosePriceLockParams, CompareParams, CreatePoolParams, CreateWhitelistV2Params,
+        DecodeParams, DownloadParams, EditPoolParams, ErrorParams, FeeParams, FindPriceLockParams,
+        UpdateWhitelistV2Params,
     },
 };
 
@@ -23,6 +25,7 @@ fn main() -> Result<()> {
         Commands::Decode(args) => handle_decode(DecodeParams {
             rpc_url: args.read_options.rpc_url,
             address: args.address,
+            raw: args.raw,
         }),
         Commands::Download(args) => handle_download(DownloadParams {
             rpc_url: args.read_options.rpc_url,
@@ -58,6 +61,15 @@ fn main() -> Result<()> {
                 rpc_url: args.write_options.rpc_url,
                 pool: args.pool,
                 edit_pool_config_path: args.edit_pool_config_path,
+            }),
+        },
+        Commands::PriceLock(subcommand) => match subcommand {
+            PriceLockSubcommands::Find(args) => handle_find_price_lock(FindPriceLockParams {
+                rpc_url: args.read_options.rpc_url,
+            }),
+            PriceLockSubcommands::Close(args) => handle_close_price_lock(ClosePriceLockParams {
+                keypair_path: args.write_options.keypair_path,
+                rpc_url: args.write_options.rpc_url,
             }),
         },
         Commands::Whitelist(subcommand) => match subcommand {

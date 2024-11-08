@@ -4,6 +4,7 @@ mod eigen;
 mod error;
 mod fees;
 mod pool;
+mod price_lock;
 mod whitelist;
 
 pub use decode::*;
@@ -12,6 +13,7 @@ pub use eigen::*;
 pub use error::*;
 pub use fees::*;
 pub use pool::*;
+pub use price_lock::*;
 pub use whitelist::*;
 
 pub use crate::{discriminators::Discriminator, setup::CliConfig, transaction};
@@ -41,3 +43,8 @@ pub const TOKEN_PROGRAM_IDS: &[Pubkey] = &[
     pubkey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
     pubkey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
 ];
+
+pub const DEVNET_GENESIS_HASH: &str = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
+pub const MAINNET_GENESIS_HASH: &str = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
+
+pub const DEFAULT_ROOT_HASH: [u8; 32] = [0; 32];
