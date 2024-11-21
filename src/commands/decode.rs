@@ -14,6 +14,7 @@ use super::*;
 pub struct DecodeParams {
     pub rpc_url: Option<String>,
     pub address: Pubkey,
+    pub raw: bool,
 }
 
 pub fn handle_decode(args: DecodeParams) -> Result<()> {
@@ -38,6 +39,11 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
             }
         }
     };
+
+    if args.raw {
+        println!("{:?}", account.data);
+        return Ok(());
+    }
 
     if is_fee_shard(&args.address.to_string()) {
         println!(

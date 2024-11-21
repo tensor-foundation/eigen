@@ -68,6 +68,10 @@ pub struct DecodeArgs {
 
     /// Address to decode.
     pub address: Pubkey,
+
+    /// Print raw bytes.
+    #[arg(long)]
+    pub raw: bool,
 }
 
 #[derive(ClapArgs)]

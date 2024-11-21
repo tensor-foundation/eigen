@@ -23,6 +23,7 @@ fn main() -> Result<()> {
         Commands::Decode(args) => handle_decode(DecodeParams {
             rpc_url: args.read_options.rpc_url,
             address: args.address,
+            raw: args.raw,
         }),
         Commands::Download(args) => handle_download(DownloadParams {
             rpc_url: args.read_options.rpc_url,
