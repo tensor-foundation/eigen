@@ -1,0 +1,20 @@
+{
+  "pool_id": [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0
+  ],
+  "config": {
+    "pool_type": "Trade",
+    "curve_type": "Linear",
+    "starting_price": 100000000,
+    "delta": 0,
+    "mm_compound_fees": false,
+    "mm_fee_bps": 0
+  },
+  "currency": null,
+  "shared_escrow": null,
+  "cosigner": null,
+  "maker_broker": null,
+  "max_taker_sell_count": null,
+  "expire_in_sec": null
+}
