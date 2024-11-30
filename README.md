@@ -4,6 +4,12 @@ A CLI for interacting with Tensor Foundation Solana programs.
 
 ### Installation
 
+One-liner script to download the binary:
+
+```
+bash <(curl -sSf https://raw.githubusercontent.com/tensor-foundation/eigen/main/scripts/install.sh)
+```
+
 From crates.io:
 
 ```

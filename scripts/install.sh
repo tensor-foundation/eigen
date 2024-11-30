@@ -54,15 +54,15 @@ esac
 RELEASE_URL="https://github.com/tensor-foundation/eigen/releases"
 RELEASE="latest"
 BIN="eigen"
-VERSION="ubuntu-latest"
+VERSION="linux-x86_64"
 
 if [ "$OS_FLAVOUR" = Darwin ]; then
     case "$PROCESSOR" in
         arm* )
-            VERSION="macos-arm-latest"
+            VERSION="macos-arm64"
             ;;
         *)
-            VERSION="macos-intel-latest"
+            VERSION="macos-x86_64"
             ;;
     esac
 fi
