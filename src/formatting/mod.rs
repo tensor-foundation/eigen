@@ -6,6 +6,7 @@ use solana_sdk::{account::Account, pubkey::Pubkey};
 pub mod amm;
 pub mod marketplace;
 pub mod price_lock;
+pub mod raydium;
 pub mod wallet;
 pub mod whitelist;
 

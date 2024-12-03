@@ -1,3 +1,4 @@
+use borsh::BorshDeserialize;
 use tensor_amm::accounts::{NftDepositReceipt, Pool};
 use tensor_marketplace::accounts::{BidState, ListState};
 use tensor_price_lock::accounts::OrderState;
@@ -6,6 +7,11 @@ use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2}
 use crate::{
     discriminators::deserialize_account,
     formatting::{AccountEntry, CustomFormat},
+    types::{
+        raydium_clmm::{PoolState as ClmmPoolState, RAYDIUM_CLMM_PROGRAM_ID},
+        raydium_cp::{PoolState as CpPoolState, RAYDIUM_CPSWAP_PROGRAM_ID},
+        raydium_v4::{AmmInfo, RAYDIUM_AMM_PROGRAM_ID},
+    },
     Shard, FEE_SHARDS,
 };
 
@@ -66,12 +72,18 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
         return Ok(());
     }
 
-    let data = account.data.as_slice();
+    let mut data = account.data.as_slice();
 
     if data.len() < 8 {
         return Err(anyhow!("No account discriminator found!"));
     }
     let discriminator = &data[0..8];
+    println!("Discriminator: {:?}", ClmmPoolState::discriminator());
+    // print discriminator as hex
+    println!(
+        "Discriminator as hex: {:x?}",
+        ClmmPoolState::discriminator()
+    );
 
     match discriminator {
         d if d == Pool::discriminator() => {
@@ -110,16 +122,31 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
             let order_state = deserialize_account::<OrderState>(data)?;
             println!("{}", order_state.custom_format());
         }
-        _ => {
-            if TOKEN_PROGRAM_IDS.contains(&account.owner) {
+        _ => match account.owner {
+            o if o == RAYDIUM_AMM_PROGRAM_ID && data.len() == size_of::<AmmInfo>() => {
+                let amm_info = AmmInfo::deserialize(&mut data)?;
+                println!("{}", amm_info.custom_format());
+            }
+            o if o == RAYDIUM_CLMM_PROGRAM_ID => {
+                // let clmm_info = ClmmPoolState::deserialize(&mut data)?;
+                let clmm_info = deserialize_account::<ClmmPoolState>(data)?;
+                println!("{}", clmm_info.custom_format());
+            }
+            o if o == RAYDIUM_CPSWAP_PROGRAM_ID => {
+                // let cpswap_info = CpPoolState::deserialize(&mut data)?;
+                let cpswap_info = deserialize_account::<CpPoolState>(data)?;
+                println!("{}", cpswap_info.custom_format());
+            }
+            o if TOKEN_PROGRAM_IDS.contains(&o) => {
                 println!("Token or mint account");
                 println!("Data length: {}", data.len());
                 println!("Lamports: {}", account.lamports);
                 println!("Account owned by program: {}", account.owner);
-            } else {
-                println!("Unrecognized discriminator");
             }
-        }
+            _ => {
+                println!("Unknown account type");
+            }
+        },
     }
     Ok(())
 }
