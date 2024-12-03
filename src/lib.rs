@@ -5,7 +5,7 @@ pub mod commands;
 pub mod discriminators;
 pub mod formatting;
 pub mod setup;
-
+pub mod types;
 pub struct Shard {
     pub address: Pubkey,
     pub account: Account,
