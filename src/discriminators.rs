@@ -6,11 +6,20 @@ use tensor_marketplace::accounts::{BidState, ListState};
 use tensor_price_lock::accounts::OrderState;
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
+use crate::args::AnchorDiscriminatorKind;
+
 pub trait Discriminator {
+    const KIND: AnchorDiscriminatorKind = AnchorDiscriminatorKind::Account;
+
     fn discriminator() -> [u8; 8] {
+        let prefix = match Self::KIND {
+            AnchorDiscriminatorKind::Account => "account",
+            AnchorDiscriminatorKind::Instruction => "global",
+        };
+
         let mut hasher = Sha256::new();
         hasher.update(format!(
-            "account:{}",
+            "{prefix}:{}",
             std::any::type_name::<Self>()
                 .split("::")
                 .last()

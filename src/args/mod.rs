@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 
+mod derive;
 mod eigen;
 mod fees;
 mod pool;
 mod whitelist;
 
+pub use derive::*;
 pub use eigen::*;
 pub use fees::*;
 pub use pool::*;
@@ -23,6 +25,9 @@ pub struct Args {
 #[derive(Subcommand)]
 pub enum Commands {
     Decode(DecodeArgs),
+
+    #[clap(subcommand)]
+    Derive(DeriveSubcommands),
 
     Download(DownloadArgs),
 

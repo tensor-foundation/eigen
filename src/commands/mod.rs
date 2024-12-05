@@ -1,4 +1,5 @@
 mod decode;
+mod derive;
 mod download;
 mod eigen;
 mod error;
@@ -7,6 +8,7 @@ mod pool;
 mod whitelist;
 
 pub use decode::*;
+pub use derive::*;
 pub use download::*;
 pub use eigen::*;
 pub use error::*;
