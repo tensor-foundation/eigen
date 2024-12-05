@@ -3,14 +3,15 @@ use clap::Parser;
 
 use tensor_eigen::{
     args::{
-        Args, Commands, EigenSubcommands, FeesSubcommands, PoolSubcommands, WhitelistSubcommands,
+        Args, Commands, DeriveSubcommands, EigenSubcommands, FeesSubcommands, PoolSubcommands,
+        WhitelistSubcommands,
     },
     commands::{
         create_pool, create_whitelist_v2, edit_pool, fund_shards, generate_fee_shards,
-        get_shard_balances, handle_compare, handle_decode, handle_download, handle_error,
-        update_eigen, update_whitelist_v2, CompareParams, CreatePoolParams,
-        CreateWhitelistV2Params, DecodeParams, DownloadParams, EditPoolParams, ErrorParams,
-        FeeParams, UpdateWhitelistV2Params,
+        get_shard_balances, handle_anchor_discriminator, handle_compare, handle_decode,
+        handle_download, handle_error, update_eigen, update_whitelist_v2, CompareParams,
+        CreatePoolParams, CreateWhitelistV2Params, DecodeParams, DownloadParams, EditPoolParams,
+        ErrorParams, FeeParams, UpdateWhitelistV2Params,
     },
 };
 
@@ -25,6 +26,9 @@ fn main() -> Result<()> {
             address: args.address,
             raw: args.raw,
         }),
+        Commands::Derive(subcommand) => match subcommand {
+            DeriveSubcommands::AnchorDisc(args) => handle_anchor_discriminator(args),
+        },
         Commands::Download(args) => handle_download(DownloadParams {
             rpc_url: args.read_options.rpc_url,
             address: args.address,

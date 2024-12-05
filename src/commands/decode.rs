@@ -78,12 +78,6 @@ pub fn handle_decode(args: DecodeParams) -> Result<()> {
         return Err(anyhow!("No account discriminator found!"));
     }
     let discriminator = &data[0..8];
-    println!("Discriminator: {:?}", ClmmPoolState::discriminator());
-    // print discriminator as hex
-    println!(
-        "Discriminator as hex: {:x?}",
-        ClmmPoolState::discriminator()
-    );
 
     match discriminator {
         d if d == Pool::discriminator() => {
