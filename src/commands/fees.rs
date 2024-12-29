@@ -21,13 +21,13 @@ pub fn generate_fee_shards() -> Result<()> {
     for i in 0..=255 {
         let shard: &[u8] = &[i];
         shards.push(
-            Pubkey::find_program_address(&[b"fee_shard", shard], &TFEE_PROGRAM_ID)
+            Pubkey::find_program_address(&[b"fee_vault", shard], &TFEE_PROGRAM_ID)
                 .0
                 .to_string(),
         );
     }
 
-    let file = File::create("fee_shards.json")?;
+    let file = File::create("fee_vault_shards.json")?;
     serde_json::to_writer_pretty(&file, &shards)?;
 
     Ok(())
