@@ -4,6 +4,7 @@ use super::*;
 
 use std::{fs::File, str::FromStr};
 
+use indicatif::{ProgressBar, ProgressStyle};
 use solana_sdk::{
     instruction::Instruction, pubkey, signer::Signer, system_instruction, transaction::Transaction,
 };
@@ -46,6 +47,13 @@ pub fn fund_shards(args: FeeParams) -> Result<()> {
 
     // Check balances and create transfer instructions only for underfunded shards
     let mut instructions: Vec<Instruction> = Vec::new();
+    let pb = ProgressBar::new(shard_pubkeys.len() as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{bar:40.cyan/blue}] {pos}/{len} shards checked")?
+            .progress_chars("#>-"),
+    );
+
     for pubkey in &shard_pubkeys {
         let balance = config.client.get_balance(pubkey)?;
         if balance < rent_exempt_lamports {
@@ -55,7 +63,9 @@ pub fn fund_shards(args: FeeParams) -> Result<()> {
                 rent_exempt_lamports - balance,
             ));
         }
+        pb.inc(1);
     }
+    pb.finish_with_message("Finished checking shard balances");
 
     if instructions.is_empty() {
         println!("All shards are already funded.");
@@ -93,7 +103,7 @@ pub fn get_shard_balances(args: FeeParams) -> Result<()> {
 
     for pubkey in &shard_pubkeys {
         let balance = config.client.get_balance(pubkey)?;
-        let status = if balance == rent_exempt_lamports {
+        let status = if balance >= rent_exempt_lamports {
             fully_funded_count += 1;
             "✓"
         } else {
