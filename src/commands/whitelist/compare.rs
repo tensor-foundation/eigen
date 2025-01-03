@@ -128,8 +128,17 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         .map(|w| WhitelistV2::find_pda(&WHITELIST_SIGNER_PUBKEY, w.uuid).0)
         .collect::<Vec<_>>();
 
-    // Fetch v2 accounts from on-chain
-    let whitelist_v2_accounts = cli_config.client.get_multiple_accounts(&whitelist_v2s)?;
+    // Fetch v2 accounts from on-chain in batches of 1000
+    let chunk_size = 1000;
+    let whitelist_v2_accounts: Vec<Option<Account>> = whitelist_v2s
+        .chunks(chunk_size)
+        .flat_map(|chunk| {
+            cli_config
+                .client
+                .get_multiple_accounts(chunk)
+                .unwrap_or_default()
+        })
+        .collect();
 
     // Decode v2 accounts
     let decoded_whitelist_v2s: Vec<Option<WhitelistV2>> = whitelist_v2_accounts
