@@ -1,10 +1,9 @@
-use crate::FEE_SHARDS;
+use crate::{spinner::pb_with_len, FEE_SHARDS};
 
 use super::*;
 
 use std::{fs::File, str::FromStr};
 
-use indicatif::{ProgressBar, ProgressStyle};
 use solana_sdk::{
     instruction::Instruction, pubkey, signer::Signer, system_instruction, transaction::Transaction,
 };
@@ -47,12 +46,7 @@ pub fn fund_shards(args: FeeParams) -> Result<()> {
 
     // Check balances and create transfer instructions only for underfunded shards
     let mut instructions: Vec<Instruction> = Vec::new();
-    let pb = ProgressBar::new(shard_pubkeys.len() as u64);
-    pb.set_style(
-        ProgressStyle::default_bar()
-            .template("{spinner:.green} [{bar:40.cyan/blue}] {pos}/{len} shards checked")?
-            .progress_chars("#>-"),
-    );
+    let pb = pb_with_len("shards checked", shard_pubkeys.len() as u64)?;
 
     for pubkey in &shard_pubkeys {
         let balance = config.client.get_balance(pubkey)?;
