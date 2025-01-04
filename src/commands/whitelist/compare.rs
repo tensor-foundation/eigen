@@ -19,6 +19,7 @@ use crate::{
     discriminators::{deserialize_account, Discriminator},
     formatting::CustomFormat,
     setup::CliConfig,
+    spinner::{pb_with_len, spinner},
 };
 
 pub const WHITELIST_SIGNER_PUBKEY: Pubkey = pubkey!("Evfeo6yn3ASo3FWkGRKJNfvjF4wCKbuNEkNfYQMtoSBr");
@@ -48,10 +49,14 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         "unknown"
     };
 
-    println!("cluster: {}", cluster);
+    println!("Fetching whitelists from: {}", cluster);
+
+    let spinner = spinner("")?;
 
     // Open the list file and decode into a vector of Pubkeys
     let whitelists: Vec<Account> = if let Some(list) = args.list {
+        spinner.set_message("Opening specified file...");
+
         let list: Vec<Pubkey> = serde_json::from_reader(File::open(&list)?)?;
 
         let pubkeys: Vec<_> = list
@@ -66,6 +71,8 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
             .flatten()
             .collect()
     } else {
+        spinner.set_message("Running gPA call to get all whitelist v1s...");
+
         // GPA to find all whitelists v1s
         let mut disc = Vec::with_capacity(8);
         disc.extend(Whitelist::discriminator());
@@ -91,6 +98,7 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
             .map(|(_, account)| account)
             .collect()
     };
+    spinner.finish_and_clear();
 
     println!("Found {} v1 whitelists", whitelists.len());
 
@@ -110,7 +118,8 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         }
     });
 
-    println!("missing {} v1 whitelists on chain", v1_missing.len());
+    println!("Missing {} v1 whitelists on chain", v1_missing.len());
+
     // Write v1_missing to a file
     let file = File::create(format!("{}_v1_missing.json", cluster))?;
     serde_json::to_writer(file, &v1_missing)?;
@@ -122,23 +131,37 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
 
     println!("found {} v1 whitelists on chain", valid_whitelists.len());
 
+    let pb = pb_with_len("whitelists derived", valid_whitelists.len() as u64)?;
+
     // Derive the v2 whitelists PDAs
     let whitelist_v2s = valid_whitelists
         .iter()
-        .map(|w| WhitelistV2::find_pda(&WHITELIST_SIGNER_PUBKEY, w.uuid).0)
+        .map(|w| {
+            pb.inc(1); // Increment progress bar for each whitelist processed
+            WhitelistV2::find_pda(&WHITELIST_SIGNER_PUBKEY, w.uuid).0
+        })
         .collect::<Vec<_>>();
+
+    pb.finish();
 
     // Fetch v2 accounts from on-chain in batches of 1000
     let chunk_size = 1000;
-    let whitelist_v2_accounts: Vec<Option<Account>> = whitelist_v2s
-        .chunks(chunk_size)
+    let chunks = whitelist_v2s.chunks(chunk_size);
+    let total_chunks = whitelist_v2s.len().div_ceil(chunk_size);
+
+    let pb = pb_with_len("chunks fetched", total_chunks as u64)?;
+
+    let whitelist_v2_accounts: Vec<Option<Account>> = chunks
         .flat_map(|chunk| {
+            pb.inc(1);
             cli_config
                 .client
                 .get_multiple_accounts(chunk)
                 .unwrap_or_default()
         })
         .collect();
+
+    pb.finish();
 
     // Decode v2 accounts
     let decoded_whitelist_v2s: Vec<Option<WhitelistV2>> = whitelist_v2_accounts
@@ -172,7 +195,6 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         .collect();
 
     println!("{} whitelists have no v2 on chain", missing_v2s.len());
-    println!("{:?}", missing_v2s);
 
     // Write v2_missing to a file
     let file = File::create(format!("{}_v2_missing.json", cluster))?;
@@ -192,10 +214,14 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
     serde_json::to_writer_pretty(file, &mismatches)?;
 
     if args.verbose {
-        for result in comparison_results {
+        for result in comparison_results.iter() {
             println!("{}", result.custom_format());
             println!(); // Add a blank line between comparisons for readability
         }
+    }
+
+    if mismatches.is_empty() && missing_v2s.is_empty() {
+        println!("All good! ✅ 😎");
     }
 
     Ok(())
