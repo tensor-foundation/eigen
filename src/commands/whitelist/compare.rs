@@ -22,7 +22,7 @@ use crate::{
     spinner::{pb_with_len, spinner},
 };
 
-pub const WHITELIST_SIGNER_PUBKEY: Pubkey = pubkey!("Evfeo6yn3ASo3FWkGRKJNfvjF4wCKbuNEkNfYQMtoSBr");
+pub const WHITELIST_SIGNER_PUBKEY: Pubkey = pubkey!("DD92UoQnVAaNgRnhvPQhxR7GJkQ9EXhHYq2TEpN8mn1J");
 
 const DEVNET_GENESIS_HASH: &str = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
 const MAINNET_GENESIS_HASH: &str = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
