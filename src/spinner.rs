@@ -1,6 +1,6 @@
 use indicatif::{ProgressBar, ProgressStyle};
 
-pub fn spinner(msg: &str) -> Result<ProgressBar, indicatif::style::TemplateError> {
+pub fn create_spinner(msg: &str) -> Result<ProgressBar, indicatif::style::TemplateError> {
     let spinner = ProgressBar::new_spinner();
     spinner.set_style(
         indicatif::ProgressStyle::default_spinner()
