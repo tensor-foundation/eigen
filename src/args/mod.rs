@@ -15,6 +15,8 @@ pub use whitelist::*;
 use clap::{Args as ClapArgs, Parser, Subcommand};
 use solana_sdk::pubkey::Pubkey;
 
+use crate::commands::Id;
+
 #[derive(Parser)]
 #[clap(author, version, about)]
 pub struct Args {
@@ -35,6 +37,8 @@ pub enum Commands {
 
     #[clap(subcommand)]
     Fees(FeesSubcommands),
+
+    Ids(IdArgs),
 
     #[clap(subcommand)]
     Pool(PoolSubcommands),
@@ -95,4 +99,10 @@ pub struct DownloadArgs {
 pub struct ErrorArgs {
     /// Error code.
     pub error_code: String,
+}
+
+#[derive(ClapArgs)]
+pub struct IdArgs {
+    /// ID name.
+    pub id: Id,
 }
