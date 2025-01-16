@@ -70,6 +70,7 @@ fn main() -> Result<()> {
                 keypair_path: None,
                 rpc_url: args.read_options.rpc_url,
                 list: args.list,
+                namespace: args.namespace,
                 verbose: args.verbose,
             }),
             WhitelistSubcommands::Create(args) => create_whitelist_v2(CreateWhitelistV2Params {

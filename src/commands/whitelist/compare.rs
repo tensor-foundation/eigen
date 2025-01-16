@@ -33,6 +33,7 @@ pub struct CompareParams {
     pub keypair_path: Option<PathBuf>,
     pub rpc_url: Option<String>,
     pub list: Option<PathBuf>,
+    pub namespace: Option<Pubkey>,
     pub verbose: bool,
 }
 
@@ -40,6 +41,8 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
     let cli_config = CliConfig::new(args.keypair_path, args.rpc_url)?;
 
     let genesis_hash = cli_config.client.get_genesis_hash()?.to_string();
+
+    let namespace = args.namespace.unwrap_or(WHITELIST_SIGNER_PUBKEY);
 
     let cluster = if genesis_hash == MAINNET_GENESIS_HASH {
         "mainnet"
@@ -158,7 +161,7 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         .iter()
         .map(|w| {
             pb.inc(1); // Increment progress bar for each whitelist processed
-            WhitelistV2::find_pda(&WHITELIST_SIGNER_PUBKEY, w.uuid).0
+            WhitelistV2::find_pda(&namespace, w.uuid).0
         })
         .collect::<Vec<_>>();
     pb.finish();

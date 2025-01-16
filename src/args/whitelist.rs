@@ -15,6 +15,9 @@ pub struct WhitelistCompareArgs {
     /// List file path.
     pub list: Option<PathBuf>,
 
+    /// Optional namespace to derive whitelist v2 address.
+    pub namespace: Option<Pubkey>,
+
     /// Verbose output.
     #[arg(short, long)]
     pub verbose: bool,
