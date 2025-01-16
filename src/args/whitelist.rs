@@ -13,9 +13,11 @@ pub struct WhitelistCompareArgs {
     pub read_options: ReadOptions,
 
     /// List file path.
+    #[arg(short, long)]
     pub list: Option<PathBuf>,
 
     /// Optional namespace to derive whitelist v2 address.
+    #[arg(short, long)]
     pub namespace: Option<Pubkey>,
 
     /// Verbose output.
