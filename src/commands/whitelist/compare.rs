@@ -1,25 +1,28 @@
-use std::{fs::File, path::PathBuf};
+use std::{collections::HashMap, fs::File, path::PathBuf};
 
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
-use solana_account_decoder::UiAccountEncoding;
-use solana_client::{
-    rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
-    rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
-};
-use solana_program::{pubkey, pubkey::Pubkey};
-use solana_sdk::{account::Account, commitment_config::CommitmentConfig};
-use tensor_whitelist::{
-    accounts::{Whitelist, WhitelistV2},
-    programs::TENSOR_WHITELIST_ID,
-    types::{Condition, Mode},
+use {
+    anyhow::Result,
+    serde::{Deserialize, Serialize},
+    serde_with::{serde_as, DisplayFromStr},
+    solana_account_decoder::UiAccountEncoding,
+    solana_client::{
+        rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
+        rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
+    },
+    solana_program::{pubkey, pubkey::Pubkey},
+    solana_sdk::{account::Account, commitment_config::CommitmentConfig},
+    tensor_whitelist::{
+        accounts::{Whitelist, WhitelistV2},
+        programs::TENSOR_WHITELIST_ID,
+        types::{Condition, Mode},
+    },
 };
 
 use crate::{
     discriminators::{deserialize_account, Discriminator},
     formatting::CustomFormat,
     setup::CliConfig,
-    spinner::{pb_with_len, spinner},
+    spinner::create_spinner,
 };
 
 pub const WHITELIST_SIGNER_PUBKEY: Pubkey = pubkey!("DD92UoQnVAaNgRnhvPQhxR7GJkQ9EXhHYq2TEpN8mn1J");
@@ -28,6 +31,43 @@ const DEVNET_GENESIS_HASH: &str = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
 const MAINNET_GENESIS_HASH: &str = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
 
 const DEFAULT_ROOT_HASH: [u8; 32] = [0; 32];
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WhitelistPair {
+    v1_pubkey: Pubkey,
+    v1_data: Whitelist,
+    v2_pubkey: Pubkey,
+    v2_data: Option<WhitelistV2>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct MissingWhitelistPair {
+    #[serde_as(as = "DisplayFromStr")]
+    pub v1_pubkey: Pubkey,
+    #[serde_as(as = "DisplayFromStr")]
+    pub v2_pubkey: Pubkey,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ComparisonResult {
+    #[serde_as(as = "DisplayFromStr")]
+    pub whitelist_v1: Pubkey,
+    #[serde_as(as = "DisplayFromStr")]
+    pub whitelist_v2: Pubkey,
+    pub mismatch: Option<Mismatch>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum Mismatch {
+    Uuid,
+    MerkleRoot,
+    Voc,
+    Fvc,
+    V2Missing,
+    V2ConditionsLength,
+}
 
 pub struct CompareParams {
     pub keypair_path: Option<PathBuf>,
@@ -54,7 +94,8 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
 
     println!("Fetching whitelists from: {}", cluster);
 
-    let spinner = spinner("")?;
+    // Spinner with empty message we populate later.
+    let spinner = create_spinner("")?;
 
     // Open the list file and decode into a vector of Pubkeys
     let whitelists: Vec<(Pubkey, Account)> = if let Some(list) = args.list {
@@ -103,163 +144,97 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         cli_config
             .client
             .get_program_accounts_with_config(&TENSOR_WHITELIST_ID, config)?
-            .into_iter()
-            .collect()
     };
     spinner.finish_and_clear();
 
-    println!("Found {} v1 whitelists", whitelists.len());
+    println!("Found {} v1 whitelists on-chain", whitelists.len());
 
-    // Write v1 whitelist pubkeys to a file
-    let whitelist_pubkeys: Vec<String> = whitelists
-        .iter()
-        .map(|(pubkey, _)| pubkey.to_string())
-        .collect();
+    // GPA to find all whitelists v2s
+    let mut disc = Vec::with_capacity(8);
+    disc.extend(WhitelistV2::discriminator());
 
-    let file = File::create(format!("{}_v1_whitelists.json", cluster))?;
-    serde_json::to_writer_pretty(file, &whitelist_pubkeys)?;
+    let filter = RpcFilterType::Memcmp(Memcmp::new(0, MemcmpEncodedBytes::Bytes(disc)));
+    let filters = vec![filter];
 
-    println!(
-        "Wrote {} v1 whitelist pubkeys to {}_v1_whitelists.json",
-        whitelist_pubkeys.len(),
-        cluster
-    );
+    let config = RpcProgramAccountsConfig {
+        filters: Some(filters),
+        account_config: RpcAccountInfoConfig {
+            data_slice: None,
+            encoding: Some(UiAccountEncoding::Base64),
+            commitment: Some(CommitmentConfig::confirmed()),
+            min_context_slot: None,
+        },
+        with_context: None,
+    };
 
-    let mut v1_missing = vec![];
+    let spinner = create_spinner("Running gPA call to get all whitelist v2s...")?;
 
-    // Decode whitelist v1.
-    let decoded_whitelists: Vec<Option<Whitelist>> = whitelists
+    let on_chain_whitelist_v2s: HashMap<Pubkey, Account> = cli_config
+        .client
+        .get_program_accounts_with_config(&TENSOR_WHITELIST_ID, config)?
         .into_iter()
-        .map(|(_, account)| {
-            Some(account.data).and_then(|data| deserialize_account::<Whitelist>(&data).ok())
-        })
         .collect();
 
-    decoded_whitelists.iter().for_each(|w| {
-        if w.is_none() {
-            v1_missing.push(w);
-        }
-    });
-
-    println!("Missing {} v1 whitelists on chain", v1_missing.len());
-
-    // Write v1_missing to a file
-    let file = File::create(format!("{}_v1_missing.json", cluster))?;
-    serde_json::to_writer(file, &v1_missing)?;
-
-    let valid_whitelists = decoded_whitelists
-        .iter()
-        .filter_map(|w| w.as_ref())
-        .collect::<Vec<_>>();
-
-    println!("Found {} v1 whitelists on chain", valid_whitelists.len());
-
-    let pb = pb_with_len("whitelists derived", valid_whitelists.len() as u64)?;
-
-    // Derive the v2 whitelists PDAs
-    let whitelist_v2s = valid_whitelists
-        .iter()
-        .map(|w| {
-            pb.inc(1); // Increment progress bar for each whitelist processed
-            WhitelistV2::find_pda(&namespace, w.uuid).0
-        })
-        .collect::<Vec<_>>();
-    pb.finish();
-
-    let whitelist_v2_pubkeys: Vec<String> = whitelist_v2s
-        .iter()
-        .map(|pubkey| pubkey.to_string())
-        .collect();
-
-    // Write v2 whitelist pubkeys to a file
-    let file = File::create(format!("{}_v2_whitelists.json", cluster))?;
-    serde_json::to_writer_pretty(file, &whitelist_v2_pubkeys)?;
+    spinner.finish_and_clear();
 
     println!(
-        "Wrote {} v2 whitelist pubkeys to {}_v2_whitelists.json",
-        whitelist_v2s.len(),
-        cluster
+        "Found {} v2 whitelists on-chain",
+        on_chain_whitelist_v2s.len()
     );
 
-    // Fetch v2 accounts from on-chain in batches of 1000
-    let chunk_size = 1000;
-    let chunks = whitelist_v2s.chunks(chunk_size);
-    let total_chunks = whitelist_v2s.len().div_ceil(chunk_size);
-
-    let pb = pb_with_len("chunks fetched", total_chunks as u64)?;
-
-    let whitelist_v2_accounts: Vec<Option<Account>> = chunks
-        .flat_map(|chunk| {
-            pb.inc(1);
-            cli_config
-                .client
-                .get_multiple_accounts(chunk)
-                .unwrap_or_default()
-        })
-        .collect();
-
-    pb.finish();
-
-    // Decode v2 accounts
-    let decoded_whitelist_v2s: Vec<Option<WhitelistV2>> = whitelist_v2_accounts
+    let whitelist_pairs: Vec<WhitelistPair> = whitelists
         .into_iter()
-        .map(|maybe_account| {
-            maybe_account.and_then(|a| deserialize_account::<WhitelistV2>(&a.data).ok())
+        .map(|(pubkey, account)| {
+            (
+                pubkey,
+                deserialize_account::<Whitelist>(&account.data).unwrap(),
+            )
+        })
+        .map(|(v1_pubkey, v1_data)| {
+            let v2_pubkey = WhitelistV2::find_pda(&namespace, v1_data.uuid).0;
+            let v2_data = on_chain_whitelist_v2s
+                .get(&v2_pubkey)
+                .and_then(|account| deserialize_account::<WhitelistV2>(&account.data).ok());
+
+            WhitelistPair {
+                v1_pubkey,
+                v1_data,
+                v2_pubkey,
+                v2_data,
+            }
         })
         .collect();
 
-    println!(
-        "Found {} v2 whitelists on chain",
-        decoded_whitelist_v2s.len()
-    );
-
-    // If no whitelist v2s are found, return an error
-    if decoded_whitelist_v2s.is_empty() {
-        anyhow::bail!("No v2 whitelists found on chain.");
-    }
-
-    // Build WhitelistPair structs
-    let whitelist_pairs: Vec<WhitelistFullPair> = valid_whitelists
-        .iter()
-        .zip(whitelist_v2s.iter())
-        .zip(decoded_whitelist_v2s.iter())
-        .map(|((v1, v2_pubkey), v2_option)| WhitelistFullPair {
-            v1_pubkey: Whitelist::find_pda(v1.uuid).0,
-            v2_pubkey: *v2_pubkey,
-            v1: (*v1).clone(),
-            v2: v2_option.clone(),
-        })
-        .collect();
-
-    println!("Found {} whitelist pairs", whitelist_pairs.len());
-
-    // Write all whitelist pairs to a file
-    let file = File::create(format!("{}_all_pairs.json", cluster))?;
-    serde_json::to_writer_pretty(file, &whitelist_pairs)?;
-
-    println!(
-        "Wrote {} whitelist pairs to {}_all_pairs.json",
-        whitelist_pairs.len(),
-        cluster
-    );
+    println!("Built pairs");
 
     // Find missing V2s by finding all the None values in the v2 field
-    let missing_v2s: Vec<WhitelistPair> = whitelist_pairs
-        .iter()
-        .filter(|pair| pair.v2.is_none())
-        .map(|pair| WhitelistPair {
+    let (missing_v2s, existing_v2s): (Vec<WhitelistPair>, Vec<WhitelistPair>) = whitelist_pairs
+        .into_iter()
+        .partition(|pair| pair.v2_data.is_none());
+
+    println!("{} whitelists have no v2 on chain", missing_v2s.len());
+
+    let no_missing_v2s = missing_v2s.is_empty();
+    let number_of_missing_v2s = missing_v2s.len();
+
+    let missing_pairs: Vec<MissingWhitelistPair> = missing_v2s
+        .into_iter()
+        .map(|pair| MissingWhitelistPair {
             v1_pubkey: pair.v1_pubkey,
             v2_pubkey: pair.v2_pubkey,
         })
         .collect();
 
-    println!("{} whitelists have no v2 on chain", missing_v2s.len());
+    let spinner = create_spinner("Writing missing v2s to file...")?;
 
     // Write v2_missing to a file
     let file = File::create(format!("{}_v2_missing.json", cluster))?;
-    serde_json::to_writer_pretty(file, &missing_v2s)?;
+    serde_json::to_writer_pretty(file, &missing_pairs)?;
 
-    let comparison_results = compare_whitelists(&whitelist_pairs);
+    spinner.finish_and_clear();
+
+    // Only compare the whitelists that have a v2 on chain
+    let comparison_results = compare_whitelists(&existing_v2s);
 
     // Write any comparison results with a mismatch to a file. We need to filter out the ones with no mismatch.
     let mismatches = comparison_results
@@ -267,10 +242,18 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         .filter(|result| result.mismatch.is_some())
         .collect::<Vec<_>>();
 
-    println!("{} mismatches found", mismatches.len());
+    println!(
+        "Of the {} whitelists with a v2 on chain, {} have a mismatch",
+        existing_v2s.len(),
+        mismatches.len()
+    );
+
+    let spinner = create_spinner("Writing mismatches to file...")?;
 
     let file = File::create(format!("{}_mismatches.json", cluster))?;
     serde_json::to_writer_pretty(file, &mismatches)?;
+
+    spinner.finish_and_clear();
 
     if args.verbose {
         for result in comparison_results.iter() {
@@ -279,61 +262,17 @@ pub fn handle_compare(args: CompareParams) -> Result<()> {
         }
     }
 
-    if mismatches.is_empty() && missing_v2s.is_empty() {
+    if mismatches.is_empty() && no_missing_v2s {
         println!("All good! ✅ 😎");
+    } else {
+        println!(
+            "There are {} mismatches and {} missing v2s",
+            mismatches.len(),
+            number_of_missing_v2s
+        );
     }
 
     Ok(())
-}
-
-use serde_with::{serde_as, DisplayFromStr};
-
-#[serde_as]
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WhitelistFullPair {
-    #[serde_as(as = "DisplayFromStr")]
-    pub v1_pubkey: Pubkey,
-    #[serde_as(as = "DisplayFromStr")]
-    pub v2_pubkey: Pubkey,
-    pub v1: Whitelist,
-    pub v2: Option<WhitelistV2>,
-}
-
-#[serde_as]
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WhitelistPair {
-    #[serde_as(as = "DisplayFromStr")]
-    pub v1_pubkey: Pubkey,
-    #[serde_as(as = "DisplayFromStr")]
-    pub v2_pubkey: Pubkey,
-}
-#[serde_as]
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct V2Missing {
-    #[serde_as(as = "DisplayFromStr")]
-    pub whitelist_v1: Pubkey,
-    #[serde_as(as = "DisplayFromStr")]
-    pub whitelist_v2: Pubkey,
-    pub v2_exists: bool,
-}
-
-#[serde_as]
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ComparisonResult {
-    #[serde_as(as = "DisplayFromStr")]
-    pub whitelist_v1: Pubkey,
-    #[serde_as(as = "DisplayFromStr")]
-    pub whitelist_v2: Pubkey,
-    pub mismatch: Option<Mismatch>,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub enum Mismatch {
-    Uuid,
-    MerkleRoot,
-    Voc,
-    Fvc,
-    V2Missing,
 }
 
 fn has_matching_condition(conditions: &[Condition], mode: Mode, value: &Pubkey) -> bool {
@@ -342,12 +281,12 @@ fn has_matching_condition(conditions: &[Condition], mode: Mode, value: &Pubkey) 
         .any(|condition| condition.mode == mode && condition.value == *value)
 }
 
-pub fn compare_whitelists(whitelist_pairs: &[WhitelistFullPair]) -> Vec<ComparisonResult> {
+pub fn compare_whitelists(whitelist_pairs: &[WhitelistPair]) -> Vec<ComparisonResult> {
     whitelist_pairs
         .iter()
         .map(|pair| {
-            let v1 = &pair.v1;
-            let v2 = match &pair.v2 {
+            let v1 = &pair.v1_data;
+            let v2 = match &pair.v2_data {
                 Some(v2) => v2,
                 None => {
                     return ComparisonResult {
@@ -406,6 +345,14 @@ pub fn compare_whitelists(whitelist_pairs: &[WhitelistFullPair]) -> Vec<Comparis
                         mismatch: Some(Mismatch::Fvc),
                     };
                 }
+            }
+
+            if v2.conditions.len() != 1 {
+                return ComparisonResult {
+                    whitelist_v1: pair.v1_pubkey,
+                    whitelist_v2: pair.v2_pubkey,
+                    mismatch: Some(Mismatch::V2ConditionsLength),
+                };
             }
 
             ComparisonResult {
