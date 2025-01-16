@@ -1,7 +1,11 @@
-use console::Style;
-use tensor_amm::{
-    accounts::{NftDepositReceipt, Pool},
-    types::{PoolConfig, PoolStats},
+use std::fmt::Write;
+
+use {
+    console::Style,
+    tensor_amm::{
+        accounts::{NftDepositReceipt, Pool},
+        types::{PoolConfig, PoolStats},
+    },
 };
 
 use crate::formatting::{format_timestamp, pad_label};
@@ -49,7 +53,10 @@ impl CustomFormat for Pool {
             pad_label("bump", POOL_LABEL_LENGTH),
             color.apply_to(self.bump[0]),
             pad_label("pool_id", POOL_LABEL_LENGTH),
-            color.apply_to(String::from_utf8_lossy(&self.pool_id)),
+            color.apply_to(self.pool_id.iter().fold(String::new(), |mut output, b| {
+                let _ = write!(output, "{b:02x}");
+                output
+            })),
             pad_label("created_at", POOL_LABEL_LENGTH),
             color.apply_to(format_timestamp(self.created_at)),
             pad_label("updated_at", POOL_LABEL_LENGTH),
