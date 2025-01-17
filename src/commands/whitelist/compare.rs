@@ -584,7 +584,7 @@ mod tests {
         assert!(results_merkle[0].mismatch.is_none());
 
         // Test with v2 condition matching FVC
-        let condition_fvc = Condition {
+        let condition_fvc: Condition = Condition {
             mode: Mode::FVC,
             value: fvc,
         };
