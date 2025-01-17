@@ -325,18 +325,24 @@ pub fn compare_whitelists(whitelist_pairs: &[WhitelistPair]) -> Vec<ComparisonRe
             }
 
             // Return early if we find a matching condition
-            if v1.root_hash != DEFAULT_ROOT_HASH
-                && has_matching_condition(
+            if v1.root_hash != DEFAULT_ROOT_HASH {
+                if has_matching_condition(
                     &v2.conditions,
                     Mode::MerkleTree,
                     &Pubkey::new_from_array(v1.root_hash),
-                )
-            {
-                return result;
+                ) {
+                    return result;
+                } else {
+                    result.mismatch = Some(Mismatch::MerkleRoot);
+                    return result;
+                }
             }
 
             if let Some(voc) = v1.voc {
                 if has_matching_condition(&v2.conditions, Mode::VOC, &voc) {
+                    return result;
+                } else {
+                    result.mismatch = Some(Mismatch::Voc);
                     return result;
                 }
             }
@@ -344,21 +350,13 @@ pub fn compare_whitelists(whitelist_pairs: &[WhitelistPair]) -> Vec<ComparisonRe
             if let Some(fvc) = v1.fvc {
                 if has_matching_condition(&v2.conditions, Mode::FVC, &fvc) {
                     return result;
+                } else {
+                    result.mismatch = Some(Mismatch::Fvc);
+                    return result;
                 }
             }
 
-            // If no matching condition found, determine the mismatch
-            let mismatch = if v1.root_hash != DEFAULT_ROOT_HASH {
-                Mismatch::MerkleRoot
-            } else if v1.voc.is_some() {
-                Mismatch::Voc
-            } else if v1.fvc.is_some() {
-                Mismatch::Fvc
-            } else {
-                Mismatch::UnexpectedV2Conditions
-            };
-
-            result.mismatch = Some(mismatch);
+            result.mismatch = Some(Mismatch::UnexpectedV2Conditions);
             result
         })
         .collect()
@@ -549,7 +547,9 @@ mod tests {
         let results_fvc = compare_whitelists(&[pair_fvc]);
 
         assert_eq!(results_fvc.len(), 1);
-        assert!(results_fvc[0].mismatch.is_none());
+        // Even though v2 has a condition matching FVC, it should still mismatch Voc is set on v1
+        // and takes priority over FVC.
+        assert_eq!(results_fvc[0].mismatch, Some(Mismatch::Voc));
     }
 
     #[test]
@@ -600,7 +600,9 @@ mod tests {
         let results_fvc = compare_whitelists(&[pair_fvc]);
 
         assert_eq!(results_fvc.len(), 1);
-        assert!(results_fvc[0].mismatch.is_none());
+        // Even though v2 has a condition matching FVC, it should still mismatch Merklet is set
+        // on v1 and takes priority.
+        assert_eq!(results_fvc[0].mismatch, Some(Mismatch::MerkleRoot));
     }
 
     #[test]
@@ -719,7 +721,7 @@ mod tests {
     #[test]
     fn test_v1_no_conditions_v2_has_fvc() {
         // v1 has none of the conditions set, v2 has FVC condition
-        // Assert mismatch is None
+        // Assert mismatch is UnexpectedV2Conditions
 
         let uuid = [9u8; 32];
         let namespace = Pubkey::new_unique();
@@ -744,11 +746,6 @@ mod tests {
         let results = compare_whitelists(&[pair]);
 
         assert_eq!(results.len(), 1);
-        // Even though v1 has no conditions, according to the compare_whitelists logic,
-        // this should result in a mismatch of type 'Other'
-        // However, your requirement says to assert Mismatch None
-        // Assuming that in this specific test, any condition satisfies when v1 has none set
-        // So we adjust the compare_whitelists function accordingly or accept mismatch as None
         assert_eq!(results[0].mismatch, Some(Mismatch::UnexpectedV2Conditions));
     }
 }
