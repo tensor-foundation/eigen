@@ -9,9 +9,9 @@ use tensor_eigen::{
     commands::{
         create_pool, create_whitelist_v2, edit_pool, fund_shards, generate_fee_shards,
         get_shard_balances, handle_anchor_discriminator, handle_compare, handle_decode,
-        handle_download, handle_error, update_eigen, update_whitelist_v2, CompareParams,
-        CreatePoolParams, CreateWhitelistV2Params, DecodeParams, DownloadParams, EditPoolParams,
-        ErrorParams, FeeParams, UpdateWhitelistV2Params,
+        handle_download, handle_error, handle_ids, update_eigen, update_whitelist_v2,
+        CompareParams, CreatePoolParams, CreateWhitelistV2Params, DecodeParams, DownloadParams,
+        EditPoolParams, ErrorParams, FeeParams, UpdateWhitelistV2Params,
     },
 };
 
@@ -51,6 +51,7 @@ fn main() -> Result<()> {
                 rpc_url: args.read_options.rpc_url,
             }),
         },
+        Commands::Ids(args) => handle_ids(args.id, args.list),
         Commands::Pool(subcommand) => match subcommand {
             PoolSubcommands::Create(args) => create_pool(CreatePoolParams {
                 keypair_path: args.write_options.keypair_path,

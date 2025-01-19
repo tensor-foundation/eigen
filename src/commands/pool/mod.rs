@@ -6,8 +6,10 @@ pub use edit::*;
 
 use std::path::PathBuf;
 
-use crate::{setup::CliConfig, transaction};
+use {
+    anyhow::Result,
+    solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction},
+    tensor_amm::accounts::Pool,
+};
 
-use anyhow::Result;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use tensor_amm::accounts::Pool;
+use crate::{setup::CliConfig, transaction};

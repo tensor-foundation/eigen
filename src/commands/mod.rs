@@ -4,6 +4,7 @@ mod download;
 mod eigen;
 mod error;
 mod fees;
+mod ids;
 mod pool;
 mod whitelist;
 
@@ -13,6 +14,7 @@ pub use download::*;
 pub use eigen::*;
 pub use error::*;
 pub use fees::*;
+pub use ids::*;
 pub use pool::*;
 pub use whitelist::*;
 
