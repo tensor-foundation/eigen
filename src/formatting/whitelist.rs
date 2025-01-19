@@ -2,7 +2,10 @@ use console::Style;
 
 use tensor_whitelist::accounts::{MintProof, MintProofV2, Whitelist, WhitelistV2};
 
-use crate::{commands::ComparisonResult, formatting::pad_label};
+use crate::{
+    commands::{ComparisonResult, WhitelistPair},
+    formatting::pad_label,
+};
 
 use super::CustomFormat;
 
@@ -38,7 +41,7 @@ impl CustomFormat for Whitelist {
             pad_label("root_hash", LABEL_LENGTH),
             color.apply_to(hex::encode(self.root_hash)),
             pad_label("uuid", LABEL_LENGTH),
-            color.apply_to(String::from_utf8_lossy(&self.uuid)),
+            color.apply_to(hex::encode(self.uuid)),
             pad_label("name", LABEL_LENGTH),
             color.apply_to(String::from_utf8_lossy(&self.name)),
             pad_label("frozen", LABEL_LENGTH),
@@ -195,6 +198,29 @@ impl CustomFormat for ComparisonResult {
             } else {
                 cross
             }),
+        )
+    }
+}
+
+impl CustomFormat for WhitelistPair {
+    fn custom_format(&self) -> String {
+        let color = Style::new();
+
+        format!(
+            "{}
+{}: {}
+{}
+{}: {}
+{}",
+            color.apply_to("Whitelist Pair---------"),
+            pad_label("v1_pubkey", LABEL_LENGTH),
+            color.apply_to(self.v1_pubkey),
+            self.v1_data.custom_format(),
+            pad_label("v2_pubkey", LABEL_LENGTH),
+            color.apply_to(self.v2_pubkey),
+            self.v2_data
+                .as_ref()
+                .map_or_else(|| "V2 Data: None".to_string(), |v2| v2.custom_format())
         )
     }
 }

@@ -1,7 +1,10 @@
-use std::fmt::Display;
+use std::{fmt::Display, fs::File, io::Write};
 
-use chrono::DateTime;
-use solana_sdk::{account::Account, pubkey::Pubkey};
+use {
+    anyhow::Result,
+    chrono::DateTime,
+    solana_sdk::{account::Account, pubkey::Pubkey},
+};
 
 pub mod amm;
 pub mod marketplace;
@@ -34,4 +37,12 @@ pub fn format_timestamp(timestamp: i64) -> String {
 pub struct AccountEntry {
     pub address: Pubkey,
     pub account: Account,
+}
+
+pub fn write_formatted<T: CustomFormat>(file_path: &str, items: &[T]) -> Result<()> {
+    let mut file = File::create(file_path)?;
+    for item in items {
+        writeln!(file, "{}\n", item.custom_format())?;
+    }
+    Ok(())
 }
