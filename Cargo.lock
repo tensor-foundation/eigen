@@ -4503,7 +4503,7 @@ dependencies = [
 
 [[package]]
 name = "tensor-eigen"
-version = "0.0.27"
+version = "0.0.28"
 dependencies = [
  "anyhow",
  "borsh 0.10.4",
