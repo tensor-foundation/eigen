@@ -1,52 +1,100 @@
-use std::str::FromStr;
+use std::fmt::Display;
 
-use {anyhow::Result, solana_program::pubkey, solana_sdk::pubkey::Pubkey};
+use {
+    anyhow::Result,
+    solana_program::pubkey,
+    solana_sdk::pubkey::Pubkey,
+    strum::IntoEnumIterator,
+    strum_macros::{EnumIter, EnumString},
+};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, EnumString)]
+#[strum(ascii_case_insensitive)]
 pub enum Id {
+    #[strum(serialize = "epoch_rewards", serialize = "epochRewards")]
     EpochRewards,
+    #[strum(serialize = "last_restart", serialize = "lastRestart")]
     LastRestart,
+    #[strum(serialize = "slot_hashes", serialize = "slotHashes")]
     SlotHashes,
+    #[strum(serialize = "slot_history", serialize = "slotHistory")]
     SlotHistory,
+    #[strum(serialize = "stake_history", serialize = "stakeHistory")]
     StakeHistory,
+    #[strum(serialize = "clock", serialize = "sysvar_clock")]
     Clock,
+    #[strum(
+        serialize = "epoch_schedule",
+        serialize = "epochSchedule",
+        serialize = "sysvar_epoch_schedule"
+    )]
     EpochSchedule,
+    #[strum(serialize = "fees", serialize = "sysvar_fees")]
     Fees,
+    #[strum(serialize = "instructions", serialize = "sysvar_instructions")]
     Instructions,
+    #[strum(serialize = "rent", serialize = "sysvar_rent")]
     Rent,
+    #[strum(
+        serialize = "wsol",
+        serialize = "nativeMint",
+        serialize = "native_mint"
+    )]
     NativeMint,
+    #[strum(serialize = "token", serialize = "spl_token")]
     Token,
+    #[strum(
+        serialize = "token_2022",
+        serialize = "token2022",
+        serialize = "spl_token_2022"
+    )]
     Token2022,
+    #[strum(
+        serialize = "token_metadata",
+        serialize = "tokenMetadata",
+        serialize = "mpl_token_metadata"
+    )]
     TokenMetadata,
+    #[strum(serialize = "amm", serialize = "tensorAmm", serialize = "tensor_amm")]
     TensorAmm,
+    #[strum(
+        serialize = "escrow",
+        serialize = "tensorEscrow",
+        serialize = "tensor_escrow"
+    )]
+    TensorEscrow,
+    #[strum(serialize = "tensor_fees", serialize = "tensorFees")]
+    TensorFees,
+    #[strum(
+        serialize = "market",
+        serialize = "tensorMarket",
+        serialize = "tensor_market",
+        serialize = "marketplace"
+    )]
+    TensorMarket,
+    #[strum(
+        serialize = "merkle_tree_config",
+        serialize = "merkleTreeConfig",
+        serialize = "tensor_merkle_tree_config"
+    )]
+    TensorMerkleTreeConfig,
+    #[strum(
+        serialize = "price_lock",
+        serialize = "priceLock",
+        serialize = "tensor_price_lock"
+    )]
+    TensorPriceLock,
+    #[strum(
+        serialize = "whitelist",
+        serialize = "tensorWhitelist",
+        serialize = "tensor_whitelist"
+    )]
+    TensorWhitelist,
 }
 
-fn parse_id_string(s: &str) -> String {
-    s.replace(['-', ' '], "_").to_lowercase()
-}
-
-impl FromStr for Id {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match parse_id_string(s).as_str() {
-            "epoch_rewards" => Ok(Id::EpochRewards),
-            "last_restart" => Ok(Id::LastRestart),
-            "slot_hashes" => Ok(Id::SlotHashes),
-            "slot_history" => Ok(Id::SlotHistory),
-            "stake_history" => Ok(Id::StakeHistory),
-            "sysvar_clock" | "clock" => Ok(Id::Clock),
-            "sysvar_epoch_schedule" | "epoch_schedule" => Ok(Id::EpochSchedule),
-            "sysvar_fees" | "fees" => Ok(Id::Fees),
-            "sysvar_instructions" | "instructions" => Ok(Id::Instructions),
-            "sysvar_rent" | "rent" => Ok(Id::Rent),
-            "wsol" | "native_mint" => Ok(Id::NativeMint),
-            "spl_token" | "token" => Ok(Id::Token),
-            "spl_token_2022" | "token_2022" => Ok(Id::Token2022),
-            "mpl_token_metadata" | "token_metadata" => Ok(Id::TokenMetadata),
-            "tensor_amm" | "amm" => Ok(Id::TensorAmm),
-            _ => Err(anyhow::anyhow!("Invalid ID name: {}", s)),
-        }
+impl Display for Id {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
@@ -68,6 +116,12 @@ impl Id {
             Id::Token2022 => TOKEN_2022_ID,
             Id::TokenMetadata => TOKEN_METADATA_ID,
             Id::TensorAmm => TENSOR_AMM_ID,
+            Id::TensorEscrow => TENSOR_ESCROW_ID,
+            Id::TensorFees => TENSOR_FEES_ID,
+            Id::TensorMarket => TENSOR_MARKET_ID,
+            Id::TensorMerkleTreeConfig => TENSOR_MERKLE_TREE_CONFIG,
+            Id::TensorPriceLock => TENSOR_PRICE_LOCK_ID,
+            Id::TensorWhitelist => TENSOR_WHITELIST_ID,
         }
     }
 }
@@ -94,8 +148,22 @@ pub const TOKEN_METADATA_ID: Pubkey = pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6
 
 // Tensor Foundation
 pub const TENSOR_AMM_ID: Pubkey = pubkey!("TAMM6ub33ij1mbetoMyVBLeKY5iP41i4UPUJQGkhfsg");
+pub const TENSOR_ESCROW_ID: Pubkey = pubkey!("TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN");
+pub const TENSOR_FEES_ID: Pubkey = pubkey!("TFEEgwDP6nn1s8mMX2tTNPPz8j2VomkphLUmyxKm17A");
+pub const TENSOR_MARKET_ID: Pubkey = pubkey!("TCMPhJdwDryooaGtiocG1u3xcYbRpiJzb283XfCZsDp");
+pub const TENSOR_MERKLE_TREE_CONFIG: Pubkey =
+    pubkey!("4NxSi99mo5hj3BZP6kxWVPgL6skwW6264YNn4LP3X8ML");
+pub const TENSOR_PRICE_LOCK_ID: Pubkey = pubkey!("TLoCKic2wGJm7VhZKumih4Lc35fUhYqVMgA4j389Buk");
+pub const TENSOR_WHITELIST_ID: Pubkey = pubkey!("TL1ST2iRBzuGTqLn1KXnGdSnEow62BzPnGiqyRXhWtW");
 
-pub fn handle_ids(id: Id) -> Result<()> {
-    println!("{}", id.get_pubkey());
+pub fn handle_ids(id: Option<Id>, list: bool) -> Result<()> {
+    if list {
+        println!("Available IDs:");
+        for id in Id::iter() {
+            println!("  {}", id);
+        }
+    } else {
+        println!("{}", id.unwrap().get_pubkey());
+    }
     Ok(())
 }

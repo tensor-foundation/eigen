@@ -51,7 +51,7 @@ fn main() -> Result<()> {
                 rpc_url: args.read_options.rpc_url,
             }),
         },
-        Commands::Ids(args) => handle_ids(args.id),
+        Commands::Ids(args) => handle_ids(args.id, args.list),
         Commands::Pool(subcommand) => match subcommand {
             PoolSubcommands::Create(args) => create_pool(CreatePoolParams {
                 keypair_path: args.write_options.keypair_path,

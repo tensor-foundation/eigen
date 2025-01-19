@@ -104,5 +104,9 @@ pub struct ErrorArgs {
 #[derive(ClapArgs)]
 pub struct IdArgs {
     /// ID name.
-    pub id: Id,
+    pub id: Option<Id>,
+
+    /// List all available IDs.
+    #[arg(long)]
+    pub list: bool,
 }
